@@ -83,43 +83,50 @@ var remove = function(arr, item) {
     return arr.filter(function(a) { return a !== item; });
 }
 
-/*
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <a class="navbar-brand" href="#">Navbar</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
+var nav_collapsable = function(id, eltsAndStrings) {
+    return set_props(e_div(eltsAndStrings), {class: 'navbar-collapse collapse', id: id });
+}
 
-  <div class="collapse navbar-collapse" id="navbarColor01">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Features</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Pricing</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">About</a>
-      </li>
-    </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="text" placeholder="Search">
-      <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-    </form>
-  </div>
-</nav>
-*/
+var e_nav_link = function(name, href) {
+    return set_props(e_a(href, name), {class: 'nav-link'});
+}
+
+var e_nav_links = function(namesAndHrefs) {
+    var ulist = set_props(e('ul'), {class: 'navbar-nav mr-auto'});
+    for (var i = 0; i < namesAndHrefs.length; ++i) {
+	var nameAndHref = namesAndHrefs[i];
+	ulist.appendChild(set_props(e("li", e_nav_link(nameAndHref[0], nameAndHref[1])), {class: 'nav-item'}));
+    }
+    return ulist;
+}
+
+var e_nav = function(id, pageName, eltsAndStrings) {
+    var brand = set_props(e_a("#", pageName), {class: "navbar-brand"});
+    var toggleButton = set_props(e('button', set_props(e('span'), {class: "navbar-toggler-icon"})),
+				 {
+				     class: "navbar-toggler",
+				     type: "button",
+				     'data-toggle': "collapse",
+				     'data-target': "#" + id,
+				     'aria-controls': id,
+				     'aria-expanded': "false",
+				     'aria-label': "Toggle navigation",
+				 });
+    
+    return set_props(e('nav', [brand, toggleButton].concat([nav_collapsable(id, eltsAndStrings)])),
+		     {class: "navbar navbar-expand-lg navbar-dark bg-primary"});
+}
 
 var main = function() {
     // https://bootswatch.com/slate/
-    var navbar = e_div([e_a('./index.html', 'Blog'),
-			e_a('./index.html', 'Portfolio'),
-			e_a('https://www.youtube.com/channel/UCLNTFHb8gz7ag7XnnV3o05Q?view_as=subscriber', 'YouTube'),
-			e_a('https://github.com/chebert', 'Github'),
-			e_a('mailto:hebert.christopherj@gmail.com', 'E-Mail'),
+    var navbar = e_nav('navbar',
+		       'Blog',
+		       [e_nav_links([['Blog', '#'],
+				     ['Portfolio', '#'],
+				     ['Youtube', 'https://www.youtube.com/channel/UCLNTFHb8gz7ag7XnnV3o05Q?view_as=subscriber'],
+				     ['Github', 'https://github.com/chebert'],
+				     ['Email', 'mailto:hebert.christopherj@gmail.com']
+				    ])
 			]
 		      );
     add_elements([navbar]);
