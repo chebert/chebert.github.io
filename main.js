@@ -84,6 +84,14 @@ var remove = function(arr, item) {
 }
 
 var main = function() {
-    add_elements([e_div("hello")]);
+    // https://bootswatch.com/slate/
+    var navbar = e_div([e_a('./index.html', 'Blog'),
+			e_a('./index.html', 'Portfolio'),
+			e_a('https://www.youtube.com/channel/UCLNTFHb8gz7ag7XnnV3o05Q?view_as=subscriber', 'YouTube'),
+			e_a('https://github.com/chebert', 'Github'),
+			e_a('mailto:hebert.christopherj@gmail.com', 'E-Mail'),
+			]
+		      );
+    add_elements([navbar]);
 };
 window.onload = main;
