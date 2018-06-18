@@ -157,7 +157,7 @@ function set_props(e, props) {
     for (var key in props) {
 	// skip loop if the property is from prototype
 	if (!props.hasOwnProperty(key)) continue;
-	e[key] = props[key];
+	e.setAttribute(key, props[key]);
     }
     return e;
 }
