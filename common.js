@@ -251,6 +251,17 @@ function e_iframe(src) {
 
 // Escapes an html string by sandwiching it between &;
 function escape_html_str(str) { return "&" + str + ";"; }
+function escapeHtml(text) {
+  var map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+
+  return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
 var tab_str = escape_html_str("emsp");
 
 // Return a div
@@ -487,11 +498,120 @@ var get_blog_title_from_url = function() {
 
 // End Blog Tools //////////////////////////////////////////////////////////////
 
+// Begin Blog Entries //////////////////////////////////////////////////////////
+
+var blogEntryMyApproachToMakingSimpleWebsites = function () {
+    var title = "A Superior Web Framework for Those Who Don't Much Care for Web Development";
+    var date = '6/19/18';
+    var description = "In which I present Yet Another Web Framework which may work well with people who tend to work against the grain.";
+    var html = [
+	`<pre>What if I told you about a Web Framework that solves of your web development woes?
+
+Wait, hear me out.
+
+What if there were a framework that can generate dynamic content on the fly,
+can effortlessly ensure synchronicity between elements of your app?
+
+A framework with its own version of HTML, without all of the piercing angle brackets, 
+precarious matching close tags, and funny comment syntax. An HTML that allows for
+naming and re-using elements and their properties; an HTML that allows variables
+to be inserted.
+
+A framework that doesn't require you to have id's for everything important.
+
+A framework that DOESN'T force you to work with its conventions; a framework that allows
+you to use functional, imperative, object-oriented, data-oriented, data-driven, or whatever
+orientation of programming you want. A framework that didn't require you to learn any new -isms
+or -drivens or -orienteds.
+
+A framework that works EXCEPTIONALLY well with other libraries.
+
+A framework that is ALREADY native to Chrome, Firefox, and Internet Explorer.
+
+
+Are you ready? Have you already figured it out?
+
+JavaScript.
+
+That's right. Nothing fancy, just plain JavaScript. You don't even need ES2024 or whatever version is out.
+
+
+So, What does it take to make this framework happen?
+Actually, just a few functions:
+
+function e(type, html, attrs) {
+   var elt = document.createElement(type);
+   append_html(elt, html);
+   set_attributes(elt, attrs);
+   return elt;
+}
+
+function set_attributes(elt, attrs) {
+   for (key in attrs) elt.setAttribute(key, attrs[key]);
+   return elt;
+}
+
+append_html is easily the most complex part of this operation,
+since html can be a string, an HTMLElement, or an array of either of those.
+
+function append_html(elt, html) {
+    if (html) {
+	if (html instanceof HTMLElement) {
+	    elt.appendChild(html);
+	} else if (typeof(html) === "string") {
+	    elt.innerHTML += html;
+	} else {
+	    do_arr(html, function(x) {
+		if (typeof(x) === "string") {
+		    elt.innerHTML += x;
+		} else {
+		    elt.appendChild(x);
+		}
+	    });
+	}
+    }
+}
+
+And that's seriously it. 
+You now have in your hands the tools to make your own dynamic web pages.
+No fancy framework, no befuddled HTML syntax, just plain old vanilla JS.
+
+But, as a teaser, here is how you could write some static HTML in this new language:
+
+The HTML:
+</pre>`, e('pre', escapeHtml(`<div>
+  <h1 class="title">The last of the Mohicans</h1>
+  <h4 class="date">
+    1/2/23
+    <a href="https://www.google.com/">Google</a>
+  </h4>
+</div>`)),`<pre>
+
+In our new language, a bit more concise, and far more powerful:
+
+var title = 'The last of the Mohicans';
+var titleAttrs = {class: 'title'};
+e('div',
+  [e('h1', title, titleAttrs),
+   e('h4', ['1/2/23',
+   	    e('a', 'Google', {href: 'https://www.google.com/'})
+	   ],
+     {class: 'date'}),
+    ]);
+
+Stay tuned for the an upcoming blog post, which talks more specifically about how this is really actually all you need for creating your own dynamic web site.
+</pre>`
+    ];
+    return blog_entry(title, date, description, html);
+};
+
 var blog_entries = function() {
     var description = 'This is a description of monads for dummies. I want to have a british accent.';
     var html = [e_div('hello, world'), e_div('goodbye,')];
     var blogEntry1 = blog_entry('Monads for Dummies', '1/2/23', description, html);
     var blogEntry2 = blog_entry('Monads Part 2', '2/2/23', description, html);
     var blogEntry3 = blog_entry('Monads Part 3', '4/30/23', description, html);
-    return [blogEntry1, blogEntry2, blogEntry3];
+    return [blogEntryMyApproachToMakingSimpleWebsites()];
 };
+
+// End Blog Entries ////////////////////////////////////////////////////////////
