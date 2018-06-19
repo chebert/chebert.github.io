@@ -461,10 +461,10 @@ var e_post_page = function(blogEntries, title) {
 // End Blog Tools //////////////////////////////////////////////////////////////
 
 var blog_entries = function() {
-    var date = '1/2/23';
-    var title = 'Monads for Dummies';
     var description = 'This is a description of monads for dummies. I want to have a british accent.';
     var html = [e_div('hello, world'), e_div('goodbye,')];
-    var blogEntry = blog_entry(title, date, description, html);
-    return arr_repeat(blogEntry, 5);
+    var blogEntry1 = blog_entry('Monads for Dummies', '1/2/23', description, html);
+    var blogEntry2 = blog_entry('Monads Part 2', '2/2/23', description, html);
+    var blogEntry3 = blog_entry('Monads Part 3', '4/30/23', description, html);
+    return [blogEntry1, blogEntry2, blogEntry3];
 };
