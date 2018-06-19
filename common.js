@@ -349,4 +349,18 @@ var e_nav = function(id, pageName, eltsAndStrings) {
     return set_props(e('nav', [brand, toggleButton].concat([nav_collapsable(id, eltsAndStrings)])),
 		     {class: "navbar navbar-expand-lg navbar-dark bg-primary"});
 }
+
+var e_blog_card = function(dateStr, title, description, link) {
+    var header = set_props(e_div(dateStr), {class: 'card-header'})
+    var d = set_props(e('h4', set_props(e_a(link, title), {class: 'card-link'})), {class: 'card-title'});
+    var p = set_props(e('p', description), {class: 'card-text'});
+    var body = set_props(e_div([d, p]), {class: 'card-body'})
+    var card = set_props(e_div([header, body]),
+			 {class: "card text-white bg-primary mb-3", style: "max-width: 20rem;"});
+    return card;
+};
+
+var e_blog_post = function(dateStr, title, description, html) {
+};
+
 // End Bootswatch Tools ////////////////////////////////////////////////////////
