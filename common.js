@@ -444,7 +444,8 @@ var e_blog_card = function(blogEntry) {
 
 // Returns the element for the home page.
 // Listing of blog posts.
-var e_home_page = function(blogEntries) {
+var e_home_page = function() {
+    var blogEntries = blog_entries();
     var navbar = e_navbar('Blog');
     var cards = e_card_list(blogEntries.map(e_blog_card));
 
@@ -467,7 +468,9 @@ var e_blog_post_not_found = function(title) {
 }
 
 // Generates the blog post page given the title
-var e_post_page = function(blogEntries, title) {
+var e_blog_post_page = function() {
+    var title = get_blog_title_from_url();
+    var blogEntries = blog_entries();
     var navbar = e_navbar(title);
     var blogEntry = find_by_key(title, blogEntries, 'title');
     if (!blogEntry) {
