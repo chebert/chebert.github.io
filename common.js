@@ -99,6 +99,13 @@ function add_elements(html) {
     append_html(document.body, html);
 }
 
+// Setup window.onload to add the html to the document.body
+var add_elements_on_load = function(html) {
+    window.onload = function () {
+	add_elements(html);
+    };
+}
+
 // Create an element of type with html as a child
 // type: e.g. 'button', 'div', 'ul', etc.
 function e(type, html) {
@@ -456,6 +463,10 @@ var e_post_page = function(blogEntries, title) {
     } else {
 	return e_div([navbar, e_blog_entry(blogEntry)]);
     }
+}
+
+var get_blog_title_from_url = function() {
+    return get_json_from_url().title;
 }
 
 // End Blog Tools //////////////////////////////////////////////////////////////
