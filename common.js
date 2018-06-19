@@ -55,6 +55,17 @@ var find_by_key = function(item, arr, key) {
     return res;
 }
 
+
+var get_json_from_url = function() {
+    var query = location.search.substr(1);
+    var result = {};
+    query.split("&").forEach(function (part) {
+	var item = part.split("=");
+	result[item[0]] = decodeURIComponent(item[1]);
+    });
+    return result;
+}
+
 // End Misc tools //////////////////////////////////////////////////////////////
 
 // DOM tools ///////////////////////////////////////////////////////////////////
@@ -384,8 +395,8 @@ var e_card_list = function(cards) {
 }
 
 var navbar_nav_links = function() {
-    return [['Blog', '#'],
-	    ['Portfolio', '#'],
+    return [['Blog', 'index.html'],
+	    //['Portfolio', '#'],
 	    ['Youtube', 'https://www.youtube.com/channel/UCLNTFHb8gz7ag7XnnV3o05Q?view_as=subscriber'],
 	    ['Github', 'https://github.com/chebert'],
 	    ['Email', 'mailto:hebert.christopherj@gmail.com']];
@@ -398,18 +409,21 @@ var e_navbar = function(title) {
 // title, date, description: string
 // link: relative URL
 // html: html body of blog entry
-var blog_entry = function(title, date, description, link, html) {
+var blog_entry = function(title, date, description, html) {
     return {
 	title: title,
 	date: date,
 	description: description,
-	link: link,
 	html: html
     };
 }
 
+var blog_entry_link = function(blogEntry) {
+    return 'blog_post.html?title=' + encodeURIComponent(blogEntry.title);
+}
+
 var e_blog_card = function(blogEntry) {
-    return e_card(blogEntry.date, blogEntry.title, blogEntry.description, blogEntry.link);
+    return e_card(blogEntry.date, blogEntry.title, blogEntry.description, blog_entry_link(blogEntry));
 }
 
 // Returns the element for the home page.
@@ -429,10 +443,19 @@ var e_blog_entry = function(blogEntry) {
 		   ]);
 }
 
+var e_blog_post_not_found = function(title) {
+    return e_div('Sorry, but the blog post titled: "' + title +
+		 '" could not be found.');
+}
+
 var e_post_page = function(blogEntries, title) {
     var navbar = e_navbar(title);
     var blogEntry = find_by_key(title, blogEntries, 'title');
-    return e_div([navbar, e_blog_entry(blogEntry)]);
+    if (!blogEntry) {
+	return e_div([navbar, e_blog_post_not_found(title)]);
+    } else {
+	return e_div([navbar, e_blog_entry(blogEntry)]);
+    }
 }
 
 // End Blog Tools //////////////////////////////////////////////////////////////
@@ -442,6 +465,6 @@ var blog_entries = function() {
     var title = 'Monads for Dummies';
     var description = 'This is a description of monads for dummies. I want to have a british accent.';
     var html = [e_div('hello, world'), e_div('goodbye,')];
-    var blogEntry = blog_entry(title, date, description, '#', html);
+    var blogEntry = blog_entry(title, date, description, html);
     return arr_repeat(blogEntry, 5);
 };
