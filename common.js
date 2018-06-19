@@ -4,6 +4,57 @@ var remove = function(arr, item) {
     return arr.filter(function(a) { return a !== item; });
 }
 
+// Create an array with one element.
+var arr1 = function(elt) {
+    return [elt];
+}
+// Create an array with multiple elements.
+var arr = function(...elts) {
+    return [...elts];
+}
+// Create an array with elt inserted count times.
+var arr_repeat = function (elt, count) {
+    var a = [];
+    for (var i = 0; i < count; i++) {
+	a.push(elt);
+    }
+    return a;
+}
+
+var DO_END = 'end';
+// Return DO_END to short-circuit loops
+var dotimes = function(count, fIdx) {
+    for (var i = 0; i < count; ++i) {
+	if (fIdx(i) === DO_END) return;
+    }
+}
+var do_arr = function(arr, fEltAndIdx) {
+    for (var i = 0; i < arr.length; ++i) {
+	if (fEltAndIdx(arr[i], i) === DO_END) return;
+    }
+}
+var do_obj = function(obj, fEltAndKey) {
+    for (key in obj) {
+	if (obj.hasOwnProperty(key)) {
+	    if (fEltAndKey(key, obj[key]) === DO_END) return;
+	}
+    }
+}
+
+// Find an item in arr matching key
+// returns the first arr[i] such that arr[i][key] === item
+// returns null if not found
+var find_by_key = function(item, arr, key) {
+    var res = null;
+    do_arr(arr, function (elt) {
+	if (elt[key] === item) {
+	    res = elt
+	    return DO_END;
+	}
+    });
+    return res;
+}
+
 // End Misc tools //////////////////////////////////////////////////////////////
 
 // DOM tools ///////////////////////////////////////////////////////////////////
@@ -21,14 +72,13 @@ function append_html(elt, html) {
 	} else if (typeof(html) === "string") {
 	    elt.innerHTML += html;
 	} else {
-	    for (var i = 0; i < html.length; i++) {
-		var x = html[i];
+	    do_arr(html, function(x) {
 		if (typeof(x) === "string") {
 		    elt.innerHTML += x;
 		} else {
 		    elt.appendChild(x);
 		}
-	    }
+	    });
 	}
     }
 }
@@ -50,11 +100,11 @@ function e(type, html) {
 // each elt in elts is placed in a 'td' table data elt and appended to the table row.
 function e_table_row(elts) {
     var r = e("tr");
-    for (var j = 0; j < elts.length; j++) {
+    do_arr(elts, function(elt) {
 	var d = e("td");
-	append_html(d, elts[j]);
+	append_html(d, elt);
 	r.appendChild(d);
-    }
+    });
     return r;
 }
 
@@ -210,11 +260,9 @@ function e_canvas(width, height) {
 // props: {attr_name: value}
 // e.g. {'class': 'navbar-collapse collapse', id='navbarColor01'}
 function set_props(e, props) {
-    for (var key in props) {
-	// skip loop if the property is from prototype
-	if (!props.hasOwnProperty(key)) continue;
-	e.setAttribute(key, props[key]);
-    }
+    do_obj(props, function(elt, key) {
+	e.setAttribute(key, elt);
+    });
     return e;
 }
 
@@ -313,56 +361,3 @@ var draw_circle = function(p, radius, color, is_outline) {
 
 // End Canvas Tools ////////////////////////////////////////////////////////////
 
-/*
-// Bootswatch Tools ////////////////////////////////////////////////////////////
-// https://bootswatch.com/slate/
-
-var nav_collapsable = function(id, eltsAndStrings) {
-    return set_props(e_div(eltsAndStrings), {class: 'navbar-collapse collapse', id: id });
-}
-
-var e_nav_link = function(name, href) {
-    return set_props(e_a(href, name), {class: 'nav-link'});
-}
-
-var e_nav_links = function(namesAndHrefs) {
-    var ulist = set_props(e('ul'), {class: 'navbar-nav mr-auto'});
-    for (var i = 0; i < namesAndHrefs.length; ++i) {
-	var nameAndHref = namesAndHrefs[i];
-	ulist.appendChild(set_props(e("li", e_nav_link(nameAndHref[0], nameAndHref[1])), {class: 'nav-item'}));
-    }
-    return ulist;
-}
-
-var e_nav = function(id, pageName, eltsAndStrings) {
-    var brand = set_props(e_a("#", pageName), {class: "navbar-brand"});
-    var toggleButton = set_props(e('button', set_props(e('span'), {class: "navbar-toggler-icon"})),
-				 {
-				     class: "navbar-toggler",
-				     type: "button",
-				     'data-toggle': "collapse",
-				     'data-target': "#" + id,
-				     'aria-controls': id,
-				     'aria-expanded': "false",
-				     'aria-label': "Toggle navigation",
-				 });
-    
-    return set_props(e('nav', [brand, toggleButton].concat([nav_collapsable(id, eltsAndStrings)])),
-		     {class: "navbar navbar-expand-lg navbar-dark bg-primary"});
-}
-
-var e_blog_card = function(dateStr, title, description, link) {
-    var header = set_props(e_div(dateStr), {class: 'card-header'})
-    var d = set_props(e('h4', set_props(e_a(link, title), {class: 'card-link'})), {class: 'card-title'});
-    var p = set_props(e('p', description), {class: 'card-text'});
-    var body = set_props(e_div([d, p]), {class: 'card-body'})
-    var card = set_props(e_div([header, body]),
-			 {class: "card text-white bg-primary mb-3", style: "max-width: 20rem;"});
-    return card;
-};
-
-var e_blog_post = function(dateStr, title, description, html) {
-};
-
-// End Bootswatch Tools ////////////////////////////////////////////////////////
-*/

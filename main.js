@@ -1,4 +1,3 @@
-
 // navLinks: array of navLink
 // navLink: [name, href]
 var e_nav = function(title, navLinks) {
@@ -13,23 +12,6 @@ var e_card = function(date, title, description, link) {
     return e_table([[e('h1', e_a(link, title))],
 		    [e_div(date)],
 		    [e_div(description)]]);
-}
-
-// Create an array with one element.
-var arr1 = function(elt) {
-    return [elt];
-}
-// Create an array with multiple elements.
-var arr = function(...elts) {
-    return [...elts];
-}
-// Create an array with elt inserted count times.
-var arr_repeat = function (elt, count) {
-    var a = [];
-    for (var i = 0; i < count; i++) {
-	a.push(elt);
-    }
-    return a;
 }
 
 var e_card_list = function(cards) {
@@ -74,21 +56,32 @@ var e_home_page = function(blogEntries) {
     return e_div([navbar, cards]);
 }
 
-var main = function() {
+var blog_entries = function() {
     var date = '1/2/23';
     var title = 'Monads for Dummies';
     var description = 'This is a description of monads for dummies. I want to have a british accent.';
     var html = [e_div('hello, world'), e_div('goodbye,')];
     var blogEntry = blog_entry(title, date, description, '#', html);
+    return arr_repeat(blogEntry, 5);
+};
 
+var e_blog_entry = function(blogEntry) {
+    return e_table([[e('h1', blogEntry.title)],
+		    [e('h4', blogEntry.date)],
+		    [e('h3', blogEntry.description)],
+		    [e('div', blogEntry.html)]
+		   ]);
+}
+
+var e_post_page = function(blogEntries, title) {
     var navbar = e_navbar(title);
+    var blogEntry = find_by_key(title, blogEntries, 'title');
+    return e_div([navbar, e_blog_entry(blogEntry)]);
+}
 
-    var post = e_table([[e('h1', title)],
-			[e('h4', date)],
-			[e('h3', description)],
-			[e('div', html)]
-		       ]);
-    add_elements([navbar, post]);
-    //add_elements([e_home_page(arr_repeat(blogEntry, 5))]);
+var main = function() {
+    var title = 'Monads for Dummies';
+    //add_elements([e_post_page(blog_entries(), title)]);
+    add_elements([e_home_page(blog_entries())]);
 };
 window.onload = main;
