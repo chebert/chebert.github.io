@@ -391,16 +391,19 @@ var e_nav = function(title, navLinks) {
     return e_table([row], true);
 } 
 
+// Creates a card for a blog post
 var e_card = function(date, title, description, link) {
     return e_table([[e('h1', e_a(link, title))],
 		    [e_div(date)],
 		    [e_div(description)]]);
 }
 
+// Puts the array of cards into a table
 var e_card_list = function(cards) {
     return e_table(cards.map(arr1), true);
 }
 
+// navLink: [title, link]
 var navbar_nav_links = function() {
     return [['Blog', 'index.html'],
 	    //['Portfolio', '#'],
@@ -409,6 +412,7 @@ var navbar_nav_links = function() {
 	    ['Email', 'mailto:hebert.christopherj@gmail.com']];
 }
 
+// Creates a navbar with the given title
 var e_navbar = function(title) {
     return e_nav(title, navbar_nav_links());
 }
@@ -425,12 +429,17 @@ var blog_entry = function(title, date, description, html) {
     };
 }
 
-var blog_entry_link = function(blogEntry) {
-    return 'blog_post.html?title=' + encodeURIComponent(blogEntry.title);
+// Encodes a link to the blog post
+var blog_entry_link = function(title) {
+    return 'blog_post.html?title=' + encodeURIComponent(title);
 }
 
+// Creates a card describing a blog entry.
 var e_blog_card = function(blogEntry) {
-    return e_card(blogEntry.date, blogEntry.title, blogEntry.description, blog_entry_link(blogEntry));
+    return e_card(blogEntry.date,
+		  blogEntry.title,
+		  blogEntry.description,
+		  blog_entry_link(blogEntry.title));
 }
 
 // Returns the element for the home page.
@@ -442,6 +451,7 @@ var e_home_page = function(blogEntries) {
     return e_div([navbar, cards]);
 }
 
+// Organizes blog post
 var e_blog_entry = function(blogEntry) {
     return e_table([[e('h1', blogEntry.title)],
 		    [e('h4', blogEntry.date)],
@@ -450,11 +460,13 @@ var e_blog_entry = function(blogEntry) {
 		   ]);
 }
 
+// Creates a message for when an unrecognized titled was entered.
 var e_blog_post_not_found = function(title) {
     return e_div('Sorry, but the blog post titled: "' + title +
 		 '" could not be found.');
 }
 
+// Generates the blog post page given the title
 var e_post_page = function(blogEntries, title) {
     var navbar = e_navbar(title);
     var blogEntry = find_by_key(title, blogEntries, 'title');
@@ -465,6 +477,7 @@ var e_post_page = function(blogEntries, title) {
     }
 }
 
+// Get the blog title from the query parameters
 var get_blog_title_from_url = function() {
     return get_json_from_url().title;
 }
