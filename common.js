@@ -458,9 +458,11 @@ var e_blog_card = function(blogEntry) {
 var e_home_page = function() {
     var blogEntries = blog_entries();
     var navbar = e_navbar('Blog');
+    var explanation = e_div(
+	['Christopher Hebert\'s Blog. I discuss things like game programming, code architecture ideas, practicing, and other miscellany.']);
     var cards = e_card_list(blogEntries.map(e_blog_card));
 
-    return e_div([navbar, cards]);
+    return e_div([navbar, explanation, cards]);
 }
 
 // Organizes blog post
@@ -609,11 +611,6 @@ Stay tuned for the an upcoming blog post, which talks more specifically about ho
 };
 
 var blog_entries = function() {
-    var description = 'This is a description of monads for dummies. I want to have a british accent.';
-    var html = [e_div('hello, world'), e_div('goodbye,')];
-    var blogEntry1 = blog_entry('Monads for Dummies', '1/2/23', description, html);
-    var blogEntry2 = blog_entry('Monads Part 2', '2/2/23', description, html);
-    var blogEntry3 = blog_entry('Monads Part 3', '4/30/23', description, html);
     return [blogEntryMyApproachToMakingSimpleWebsites()];
 };
 
