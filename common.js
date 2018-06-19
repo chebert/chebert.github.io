@@ -509,8 +509,8 @@ var blogEntryMyApproachToMakingSimpleWebsites = function () {
 
 Wait, hear me out.
 
-What if there were a framework that can generate dynamic content on the fly,
-can effortlessly ensure synchronicity between elements of your app?
+What if there were a framework that can generate dynamic content on the fly;
+that could effortlessly ensure synchronicity between elements of your app?
 
 A framework with its own version of HTML, without all of the piercing angle brackets, 
 precarious matching close tags, and funny comment syntax. An HTML that allows for
@@ -533,12 +533,13 @@ Are you ready? Have you already figured it out?
 
 JavaScript.
 
-That's right. Nothing fancy, just plain JavaScript. You don't even need ES2024 or whatever version is out.
+That's right. Nothing fancy, just plain JavaScript. You don't even the newest version.
 
 
 So, What does it take to make this framework happen?
 Actually, just a few functions:
 
+One to create elements:						  
 function e(type, html, attrs) {
    var elt = document.createElement(type);
    append_html(elt, html);
@@ -546,14 +547,13 @@ function e(type, html, attrs) {
    return elt;
 }
 
+One to set attributes of elements:						 
 function set_attributes(elt, attrs) {
    for (key in attrs) elt.setAttribute(key, attrs[key]);
    return elt;
 }
 
-append_html is easily the most complex part of this operation,
-since html can be a string, an HTMLElement, or an array of either of those.
-
+One to add elements to an already-existing element:
 function append_html(elt, html) {
     if (html) {
 	if (html instanceof HTMLElement) {
@@ -571,6 +571,9 @@ function append_html(elt, html) {
 	}
     }
 }
+
+append_html is easily the most complex part of this operation,
+since html can be a string, an HTMLElement, or an array of either of those.
 
 And that's seriously it. 
 You now have in your hands the tools to make your own dynamic web pages.
