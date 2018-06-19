@@ -1,6 +1,6 @@
-var e_blog_card = function(dateStr, title, description) {
+var e_blog_card = function(dateStr, title, description, link) {
     var header = set_props(e_div(dateStr), {class: 'card-header'})
-    var d = set_props(e('h4', title), {class: 'card-title'});
+    var d = set_props(e('h4', set_props(e_a(link, title), {class: 'card-link'})), {class: 'card-title'});
     var p = set_props(e('p', description), {class: 'card-text'});
     var body = set_props(e_div([d, p]), {class: 'card-body'})
     var card = set_props(e_div([header, body]),
@@ -20,12 +20,12 @@ var main = function() {
 		       ]
 		      );
     var cards = e_div([
-	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.'),
-	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.'),
-	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.'),
-	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.'),
-	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.'),
-	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.'),
+	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.', '#'),
+	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.', '#'),
+	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.', '#'),
+	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.', '#'),
+	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.', '#'),
+	e_blog_card('1/2/23', 'Monads for Dummies', 'This is a description of monads for dummies. I want to have a british accent.', '#'),
     ]);
     add_elements([navbar, cards]);
 };
