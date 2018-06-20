@@ -417,7 +417,7 @@ var e_card_list = function(cards) {
 // navLink: [title, link]
 var navbar_nav_links = function() {
     return [['Blog', 'index.html'],
-	    //['Portfolio', '#'],
+	    ['Portfolio', 'portfolio.html'],
 	    ['Youtube', 'https://www.youtube.com/channel/UCLNTFHb8gz7ag7XnnV3o05Q?view_as=subscriber'],
 	    ['Github', 'https://github.com/chebert'],
 	    ['Email', 'mailto:hebert.christopherj@gmail.com']];
@@ -445,12 +445,32 @@ var blog_entry_link = function(title) {
     return 'blog_post.html?title=' + encodeURIComponent(title);
 }
 
+// title, date, description: string
+// link: relative URL
+// html: html body of blog entry
+var portfolio_entry = function(title, date, description, html) {
+    return blog_entry(title, date, description, html);
+}
+
+// Encodes a link to the blog post
+var portfolio_entry_link = function(title) {
+    return 'portfolio_post.html?title=' + encodeURIComponent(title);
+}
+
 // Creates a card describing a blog entry.
 var e_blog_card = function(blogEntry) {
     return e_card(blogEntry.date,
 		  blogEntry.title,
 		  blogEntry.description,
 		  blog_entry_link(blogEntry.title));
+}
+
+// Creates a card describing a blog entry.
+var e_portfolio_card = function(portfolioEntry) {
+    return e_card(portfolioEntry.date,
+		  portfolioEntry.title,
+		  portfolioEntry.description,
+		  portfolio_entry_link(portfolioEntry.title));
 }
 
 // Returns the element for the home page.
@@ -480,9 +500,17 @@ var e_blog_post_not_found = function(title) {
 		 '" could not be found.');
 }
 
+
+// Creates a message for when an unrecognized titled was entered.
+var e_portfolio_post_not_found = function(title) {
+    return e_div('Sorry, but the portfolio post titled: "' + title +
+		 '" could not be found.');
+}
+
+
 // Generates the blog post page given the title
 var e_blog_post_page = function() {
-    var title = get_blog_title_from_url();
+    var title = get_title_from_url();
     var blogEntries = blog_entries();
     var navbar = e_navbar(title);
     var blogEntry = find_by_key(title, blogEntries, 'title');
@@ -494,8 +522,39 @@ var e_blog_post_page = function() {
 }
 
 // Get the blog title from the query parameters
-var get_blog_title_from_url = function() {
+var get_title_from_url = function() {
     return get_json_from_url().title;
+}
+
+var e_portfolio_page = function() {
+    var entries = portfolio_entries();
+    var navbar = e_navbar('Portfolio');
+    var cards = e_card_list(entries.map(e_portfolio_card));
+
+    return e_div([navbar, cards]);
+}
+
+
+// Organizes portfolio post
+var e_portfolio_entry = function(portfolioEntry) {
+    return e_table([[e('h1', portfolioEntry.title)],
+		    [e('h4', portfolioEntry.date)],
+		    [e('h3', portfolioEntry.description)],
+		    [e('div', portfolioEntry.html)]
+		   ]);
+}
+
+// Generates the blog post page given the title
+var e_portfolio_post_page = function() {
+    var title = get_title_from_url();
+    var entries = portfolio_entries();
+    var navbar = e_navbar(title);
+    var entry = find_by_key(title, entries, 'title');
+    if (!entry) {
+	return e_div([navbar, e_portfolio_post_not_found(title)]);
+    } else {
+	return e_div([navbar, e_portfolio_entry(entry)]);
+    }
 }
 
 // End Blog Tools //////////////////////////////////////////////////////////////
@@ -615,3 +674,18 @@ var blog_entries = function() {
 };
 
 // End Blog Entries ////////////////////////////////////////////////////////////
+
+// Portfolio Entries ///////////////////////////////////////////////////////////
+
+var portfolio_entries = function() {
+    var entry = function () {
+	var title = 'Deer';
+	var date = '1/2/3';
+	var description = 'A 3D environmental art game developed by a team of 4 Cal Poly undergrads.';
+	var html = '';
+	return portfolio_entry(title, date, description, html);
+    }
+    return [entry(), entry(), entry()];
+};
+
+// End Portfolio Entries ///////////////////////////////////////////////////////
