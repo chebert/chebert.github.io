@@ -580,133 +580,27 @@ var e_portfolio_post_page = function() {
 
 // End Blog Tools //////////////////////////////////////////////////////////////
 
-// Begin Blog Entries //////////////////////////////////////////////////////////
-
-var blogEntryMyApproachToMakingSimpleWebsites = function () {
-    var title = "A Superior Web Framework for Those Who Don't Much Care for Web Development";
-    var date = '6/19/18';
-    var description = "In which I present Yet Another Web Framework which may work well with people who tend to work against the grain.";
-    var html = [
-	`<pre>What if I told you about a Web Framework that solves of your web development woes?
-
-Wait, hear me out.
-
-What if there were a framework that can generate dynamic content on the fly;
-that could effortlessly ensure synchronicity between elements of your app?
-
-A framework with its own version of HTML, without all of the piercing angle brackets, 
-precarious matching close tags, and funny comment syntax. An HTML that allows for
-naming and re-using elements and their properties; an HTML that allows variables
-to be inserted.
-
-A framework that doesn't require you to have id's for everything important.
-
-A framework that DOESN'T force you to work with its conventions; a framework that allows
-you to use functional, imperative, object-oriented, data-oriented, data-driven, or whatever
-orientation of programming you want. A framework that didn't require you to learn any new -isms
-or -drivens or -orienteds.
-
-A framework that works EXCEPTIONALLY well with other libraries.
-
-A framework that is ALREADY native to Chrome, Firefox, and Internet Explorer.
-
-
-Are you ready? Have you already figured it out?
-
-JavaScript.
-
-That's right. Nothing fancy, just plain JavaScript. You don't even the newest version.
-
-
-So, What does it take to make this framework happen?
-Actually, just a few functions:
-
-One to create elements:						  
-function e(type, html, attrs) {
-   var elt = document.createElement(type);
-   append_html(elt, html);
-   set_attributes(elt, attrs);
-   return elt;
-}
-
-One to set attributes of elements:						 
-function set_attributes(elt, attrs) {
-   for (key in attrs) elt.setAttribute(key, attrs[key]);
-   return elt;
-}
-
-One to add elements to an already-existing element:
-function append_html(elt, html) {
-    if (html) {
-	if (html instanceof HTMLElement) {
-	    elt.appendChild(html);
-	} else if (typeof(html) === "string") {
-	    elt.innerHTML += html;
-	} else {
-	    do_arr(html, function(x) {
-		if (typeof(x) === "string") {
-		    elt.innerHTML += x;
-		} else {
-		    elt.appendChild(x);
-		}
-	    });
-	}
-    }
-}
-
-append_html is easily the most complex part of this operation,
-since html can be a string, an HTMLElement, or an array of either of those.
-
-And that's seriously it. 
-You now have in your hands the tools to make your own dynamic web pages.
-No fancy framework, no befuddled HTML syntax, just plain old vanilla JS.
-
-But, as a teaser, here is how you could write some static HTML in this new language:
-
-The HTML:
-</pre>`, e('pre', escapeHtml(`<div>
-  <h1 class="title">The last of the Mohicans</h1>
-  <h4 class="date">
-    1/2/23
-    <a href="https://www.google.com/">Google</a>
-  </h4>
-</div>`)),`<pre>
-
-In our new language, a bit more concise, and far more powerful:
-
-var title = 'The last of the Mohicans';
-var titleAttrs = {class: 'title'};
-e('div',
-  [e('h1', title, titleAttrs),
-   e('h4', ['1/2/23',
-   	    e('a', 'Google', {href: 'https://www.google.com/'})
-	   ],
-     {class: 'date'}),
-    ]);
-
-Stay tuned for the an upcoming blog post, which talks more specifically about how this is really actually all you need for creating your own dynamic web site.
-</pre>`
-    ];
-    return blog_entry(title, date, description, html);
-};
+// Begin Post Entries //////////////////////////////////////////////////////////
 
 var blog_entries = function() {
-    return [blogEntryMyApproachToMakingSimpleWebsites()];
+    return [
+	blog_entry(
+	    "A Superior Web Framework for Those Who Don't Much Care for Web Development",
+	    '6/19/18',
+	    "In which I present Yet Another Web Framework which may work well with people who tend to work against the grain.",
+	    e_html('./blog_posts/6-19-18-my-approach-to-making-simple-websites.html'))
+    ];
 };
-
-// End Blog Entries ////////////////////////////////////////////////////////////
-
-// Portfolio Entries ///////////////////////////////////////////////////////////
 
 var portfolio_entries = function() {
     var entry = function () {
 	var title = 'Deer';
 	var date = '1/2/3';
 	var description = 'A 3D environmental art game developed by a team of 4 Cal Poly undergrads.';
-	var html = e_html('./6-19-18-my-approach-to-making-simple-websites.txt');
+	var html = e_html('./blog_posts/6-19-18-my-approach-to-making-simple-websites.html');
 	return portfolio_entry(title, date, description, html);
     }
     return [entry(), entry(), entry()];
 };
 
-// End Portfolio Entries ///////////////////////////////////////////////////////
+// End Post Entries ///////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 What if I told you about a Web Framework that solves of your web development woes?
 
-Wait, hear me out.
+_Wait_, hear me out.
 
 What if there were a framework that can generate dynamic content on the fly,
 can effortlessly ensure synchronicity between elements of your app?
@@ -10,29 +10,29 @@ precarious matching close tags, and funny comment syntax. An HTML that allows fo
 naming and re-using elements and their properties; an HTML that allows variables
 to be inserted.
 
-A framework that doesn't require you to have id's for everything important.
+A framework that _doesn't_ require you to have id's for everything important.
 
 A framework that DOESN'T force you to work with its conventions; a framework that allows
 you to use functional, imperative, object-oriented, data-oriented, data-driven, or whatever
 orientation of programming you want. A framework that didn't require you to learn any new -isms
 or -drivens or -orienteds.
 
-A framework that works EXCEPTIONALLY well with other libraries.
+A framework that works *EXCEPTIONALLY* well with other libraries.
 
-A framework that is ALREADY native to Chrome, Firefox, and Internet Explorer.
+A framework that is *ALREADY native* to Chrome, Firefox, and Internet Explorer.
 
 
 Are you ready? Have you already figured it out?
 
-JavaScript.
+_JavaScript_.
 
-That's right. Nothing fancy, just plain JavaScript. You don't even need ES2024 or whatever version is out.
+That's right. Nothing fancy, just plain JavaScript. You don't even need the newest version.
 
 
 So, What does it take to make this framework happen?
 Actually, just a few functions:
 
-
+----
 function e(type, html, attrs) {
    var elt = document.createElement(type);
    append_html(elt, html);
@@ -44,10 +44,12 @@ function set_attributes(elt, attrs) {
    for (key in attrs) elt.setAttribute(key, attrs[key]);
    return elt;
 }
+----
 
-append_html is easily the most complex part of this operation,
-since html can be a string, an HTMLElement, or an array of either of those.
+`append_html()` is easily the most complex part of this operation,
+since html can be a string, an `HTMLElement`, or an array of either of those.
 
+----
 function append_html(elt, html) {
     if (html) {
 	if (html instanceof HTMLElement) {
@@ -65,6 +67,7 @@ function append_html(elt, html) {
 	}
     }
 }
+----
 
 
 And that's seriously it. 
@@ -74,6 +77,7 @@ No fancy framework, no befuddled HTML syntax, just plain old vanilla JS.
 But, as a teaser, here is how you could write some static HTML in this new language:
 
 The HTML:
+----
 <div>
   <h1 class="title">The last of the Mohicans</h1>
   <h4 class="date">
@@ -81,9 +85,11 @@ The HTML:
     <a href="https://www.google.com/">Google</a>
   </h4>
 </div>
+----
 
 In our new language, a bit more concise, and far more powerful:
 
+----
 var title = 'The last of the Mohicans';
 var titleAttrs = {class: 'title'};
 e('div',
@@ -93,5 +99,6 @@ e('div',
 	   ],
      {class: 'date'}),
    ]);
+----
 
 Stay tuned for the an upcoming blog post, which talks more specifically about how this is really actually all you need for creating your own dynamic web site.

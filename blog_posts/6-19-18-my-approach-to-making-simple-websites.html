@@ -1,0 +1,125 @@
+<div class="paragraph">
+<p>What if I told you about a Web Framework that solves of your web development woes?</p>
+</div>
+<div class="paragraph">
+<p><em>Wait</em>, hear me out.</p>
+</div>
+<div class="paragraph">
+<p>What if there were a framework that can generate dynamic content on the fly,
+can effortlessly ensure synchronicity between elements of your app?</p>
+</div>
+<div class="paragraph">
+<p>A framework with its own version of HTML, without all of the piercing angle brackets,
+precarious matching close tags, and funny comment syntax. An HTML that allows for
+naming and re-using elements and their properties; an HTML that allows variables
+to be inserted.</p>
+</div>
+<div class="paragraph">
+<p>A framework that <em>doesn&#8217;t</em> require you to have id&#8217;s for everything important.</p>
+</div>
+<div class="paragraph">
+<p>A framework that DOESN&#8217;T force you to work with its conventions; a framework that allows
+you to use functional, imperative, object-oriented, data-oriented, data-driven, or whatever
+orientation of programming you want. A framework that didn&#8217;t require you to learn any new -isms
+or -drivens or -orienteds.</p>
+</div>
+<div class="paragraph">
+<p>A framework that works <strong>EXCEPTIONALLY</strong> well with other libraries.</p>
+</div>
+<div class="paragraph">
+<p>A framework that is <strong>ALREADY native</strong> to Chrome, Firefox, and Internet Explorer.</p>
+</div>
+<div class="paragraph">
+<p>Are you ready? Have you already figured it out?</p>
+</div>
+<div class="paragraph">
+<p><em>JavaScript</em>.</p>
+</div>
+<div class="paragraph">
+<p>That&#8217;s right. Nothing fancy, just plain JavaScript. You don&#8217;t even need the newest version.</p>
+</div>
+<div class="paragraph">
+<p>So, What does it take to make this framework happen?
+Actually, just a few functions:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>function e(type, html, attrs) {
+   var elt = document.createElement(type);
+   append_html(elt, html);
+   set_attributes(elt, attrs);
+   return elt;
+}
+
+function set_attributes(elt, attrs) {
+   for (key in attrs) elt.setAttribute(key, attrs[key]);
+   return elt;
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>append_html()</code> is easily the most complex part of this operation,
+since html can be a string, an <code>HTMLElement</code>, or an array of either of those.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>function append_html(elt, html) {
+    if (html) {
+	if (html instanceof HTMLElement) {
+	    elt.appendChild(html);
+	} else if (typeof(html) === "string") {
+	    elt.innerHTML += html;
+	} else {
+	    do_arr(html, function(x) {
+		if (typeof(x) === "string") {
+		    elt.innerHTML += x;
+		} else {
+		    elt.appendChild(x);
+		}
+	    });
+	}
+    }
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And that&#8217;s seriously it.
+You know have in your hands the tools to make your own dynamic web pages.
+No fancy framework, no befuddled HTML syntax, just plain old vanilla JS.</p>
+</div>
+<div class="paragraph">
+<p>But, as a teaser, here is how you could write some static HTML in this new language:</p>
+</div>
+<div class="paragraph">
+<p>The HTML:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>&lt;div&gt;
+  &lt;h1 class="title"&gt;The last of the Mohicans&lt;/h1&gt;
+  &lt;h4 class="date"&gt;
+    1/2/23
+    &lt;a href="https://www.google.com/"&gt;Google&lt;/a&gt;
+  &lt;/h4&gt;
+&lt;/div&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In our new language, a bit more concise, and far more powerful:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>var title = 'The last of the Mohicans';
+var titleAttrs = {class: 'title'};
+e('div',
+  [e('h1', title, titleAttrs),
+   e('h4', ['1/2/23',
+   	    e('a', 'Google', {href: 'https://www.google.com/'})
+	   ],
+     {class: 'date'}),
+   ]);</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Stay tuned for the an upcoming blog post, which talks more specifically about how this is really actually all you need for creating your own dynamic web site.</p>
+</div>
