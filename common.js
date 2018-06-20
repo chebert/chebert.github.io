@@ -99,6 +99,27 @@ function add_elements(html) {
     append_html(document.body, html);
 }
 
+// load a text file from url
+var load_file = function(url, fResponseText) {
+    var xhr= new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function() {
+	if (this.readyState !== 4) return;
+	if (this.status !== 200) return;
+	fResponseText(this.responseText);
+    };
+    xhr.send();
+}
+
+// Return a div with html loaded from url into it.
+var e_html = function(url) {
+    var elt = e_div();
+    load_file(url, function (responseText) {
+	elt.innerHTML = responseText;
+    });
+    return elt;
+}
+
 // Setup window.onload to add the html to the document.body
 var add_elements_on_load = function(html) {
     window.onload = function () {
@@ -682,7 +703,7 @@ var portfolio_entries = function() {
 	var title = 'Deer';
 	var date = '1/2/3';
 	var description = 'A 3D environmental art game developed by a team of 4 Cal Poly undergrads.';
-	var html = '';
+	var html = e_html('./6-19-18-my-approach-to-making-simple-websites.txt');
 	return portfolio_entry(title, date, description, html);
     }
     return [entry(), entry(), entry()];
