@@ -1,0 +1,275 @@
+<div class="paragraph">
+<p>This project demonstrates:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Understanding and implementation of low-level assembly language</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Understanding of instruction cycles and attention to timings</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Understanding and implementation of hardware based on official documentation</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Understanding of how and when different hardware components interact</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Implementation of a debugger</p>
+</li>
+<li>
+<p>Implementation of visualizations of CPU, and graphics data</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Showing state of CPU</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Implementation of a GUI</p>
+</li>
+<li>
+<p>"Threading" execution of GameBoy hardware components and execution of real hardware</p>
+</li>
+<li>
+<p>Working with a Foreign Function Interface (FFI) to interface with graphics libraries</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Caution</div>
+</td>
+<td class="content">
+This project is a work in progress. Currently it only implements enough instructions to run the BIOS, which displays and scrolls the Nintendo Logo. It cannot run any games. It does not emulate sound.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect1">
+<h2 id="_project_goals">Project Goals</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The goal of this project is to implement Original GameBoy Emulator such that:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the Emulator can emulate some common titles:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Tetris</p>
+</li>
+<li>
+<p>Dr. Mario</p>
+</li>
+<li>
+<p>The Legend of Zelda: Link&#8217;s Awakening</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>it runs at full speed (~60 Frames per Second)</p>
+</li>
+<li>
+<p>it has a debugger that:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>supports step, breakpoints, continue, and resuming execution</p>
+</li>
+<li>
+<p>displays CPU state and how the CPU state has changed</p>
+</li>
+<li>
+<p>displays memory updates for each instruction</p>
+</li>
+<li>
+<p>displays regions of memory</p>
+</li>
+<li>
+<p>displays relevant memory-based registers</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>it has visualizations that:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>display background tiles</p>
+</li>
+<li>
+<p>display tile maps</p>
+</li>
+<li>
+<p>display memory-based registers in relevant ways</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>has full sound support</p>
+</li>
+<li>
+<p>has a well-organized and well-documented code-base that is easy to follow for anyone familiar with the domain</p>
+</li>
+<li>
+<p>is implemented in Lisp</p>
+</li>
+<li>
+<p>uses the SDL library, and as few additional libraries as possible</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_project_demonstration">Project Demonstration</h2>
+<div class="sectionbody">
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-start.png" alt="gb emulator start">
+</div>
+<div class="title">Figure 1. The opening screen</div>
+</div>
+<div class="sect2">
+<h3 id="_debugger">Debugger</h3>
+<div class="paragraph">
+<p>Pressing step several times results in some history and some some changes to machine.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-stepped.png" alt="gb emulator stepped">
+</div>
+<div class="title">Figure 2. Stepping through several instructions</div>
+</div>
+<div class="paragraph">
+<p>Any of the previous history items can be clicked, and the machine state is restored.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-previous-state.png" alt="gb emulator previous state">
+</div>
+<div class="title">Figure 3. Clicking on a previous machine state</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+This instruction caused an update to memory, view-able in the "Memory Updates" region.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The Hex (hexadecimal), Bin (binary), and Dec (decimal) radio buttons change the display of numeric values.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-bin.png" alt="gb emulator bin">
+</div>
+<div class="title">Figure 4. Viewing values as binary numbers</div>
+</div>
+<div class="paragraph">
+<p>You can click "Dec" to see register values interpreted as signed numbers.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-negative.png" alt="gb emulator negative">
+</div>
+<div class="title">Figure 5. Viewing values as unsigned and (signed) integers</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_visualizations">Visualizations</h3>
+<div class="paragraph">
+<p>The GameBoy has a Sprite tile map, with tiles 8 pixels by 8 pixels.
+The Tile window displays all of the tiles laid out in memory.
+A specific tile can be zoomed in on using the number entry box.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-tile-map.png" alt="gb emulator tile map">
+</div>
+<div class="title">Figure 6. Viewing the 26th tile in the tile map: &#174;.</div>
+</div>
+<div class="paragraph">
+<p>The GameBoy has a background tile map layout, which lays out tiles from the Sprite tile map.
+The GameBoy renders a portion of this background tile map to the screen.
+The portion and position of the screen is represented as a red rectangle in the Tile Map window.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-background-tiles.png" alt="gb emulator background tiles">
+</div>
+<div class="title">Figure 7. Viewing the background tiles laid out on the background tile map.</div>
+</div>
+<div class="paragraph">
+<p>Here it is in motion.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-background-tiles.gif" alt="gb emulator background tiles">
+</div>
+<div class="title">Figure 8. Watching the output view scroll over the background tile map.</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_gameboy_screen">GameBoy Screen</h3>
+<div class="paragraph">
+<p>The output is displayed in a zoomed-in window.
+The Animate/Stop radio button starts or stops the full machine simulation.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-screen.png" alt="gb emulator screen">
+</div>
+<div class="title">Figure 9. Showing the emulator screen.</div>
+</div>
+<div class="paragraph">
+<p>Here it is in motion.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-output.gif" alt="gb emulator output">
+</div>
+<div class="title">Figure 10. Showing the emulator screen in action: running the BIOS.</div>
+</div>
+<div class="paragraph">
+<p>Notice how the output of this screen corresponds to window on the background tile map.</p>
+</div>
+<div class="imageblock thumb">
+<div class="content">
+<img src="./portfolio_posts/gb-emulator-output-and-background-tiles.gif" alt="gb emulator output and background tiles">
+</div>
+<div class="title">Figure 11. Showing emulator screen and background tile map simultaneously.</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_code_organization">Code Organization</h2>
+<div class="sectionbody">
+
+</div>
+</div>

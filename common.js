@@ -508,11 +508,11 @@ var e_home_page = function() {
 
 // Organizes blog post
 var e_blog_entry = function(blogEntry) {
-    return e_table([[e('h1', blogEntry.title)],
-		    [e('h4', blogEntry.date)],
-		    [e('h3', blogEntry.description)],
-		    [e('div', blogEntry.html)]
-		   ]);
+    return e_div([e('h1', blogEntry.title),
+		  e('h6', blogEntry.date),
+		  e('h5', blogEntry.description),
+		  e('div', blogEntry.html)
+		 ]);
 }
 
 // Creates a message for when an unrecognized titled was entered.
@@ -558,11 +558,10 @@ var e_portfolio_page = function() {
 
 // Organizes portfolio post
 var e_portfolio_entry = function(portfolioEntry) {
-    return e_table([[e('h1', portfolioEntry.title)],
-		    [e('h4', portfolioEntry.date)],
-		    [e('h3', portfolioEntry.description)],
-		    [e('div', portfolioEntry.html)]
-		   ]);
+    return e_div([e('h1', portfolioEntry.title),
+		  e('h6', portfolioEntry.date),
+		  e('h5', portfolioEntry.description),
+		  e('div', portfolioEntry.html)]);
 }
 
 // Generates the blog post page given the title
@@ -600,7 +599,12 @@ var portfolio_entries = function() {
 	var html = e_html('./blog_posts/6-19-18-my-approach-to-making-simple-websites.html');
 	return portfolio_entry(title, date, description, html);
     }
-    return [entry(), entry(), entry()];
+    return [
+	portfolio_entry('GameBoy Emulator',
+			'6/21/18',
+			'Describes a WIP GameBoy Emulator, implemented in Lisp.',
+			e_html("./portfolio_posts/gb-emulator.html")),
+    ];
 };
 
 // End Post Entries ///////////////////////////////////////////////////////

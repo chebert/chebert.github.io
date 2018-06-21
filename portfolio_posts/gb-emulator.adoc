@@ -1,0 +1,122 @@
+//:stylesheet: plain.css
+:imagesdir: ./portfolio_posts
+
+This project demonstrates:
+
+* Understanding and implementation of low-level assembly language
+** Understanding of instruction cycles and attention to timings
+* Understanding and implementation of hardware based on official documentation
+** Understanding of how and when different hardware components interact
+* Implementation of a debugger
+* Implementation of visualizations of CPU, and graphics data
+** Showing state of CPU
+* Implementation of a GUI
+* "Threading" execution of GameBoy hardware components and execution of real hardware
+* Working with a Foreign Function Interface (FFI) to interface with graphics libraries
+
+CAUTION: This project is a work in progress. Currently it only implements enough instructions to run the BIOS, which displays and scrolls the Nintendo Logo. It cannot run any games. It does not emulate sound.
+
+== Project Goals
+The goal of this project is to implement Original GameBoy Emulator such that:
+
+* the Emulator can emulate some common titles:
+** Tetris
+** Dr. Mario
+** The Legend of Zelda: Link's Awakening
+* it runs at full speed (~60 Frames per Second)
+* it has a debugger that:
+** supports step, breakpoints, continue, and resuming execution
+** displays CPU state and how the CPU state has changed
+** displays memory updates for each instruction
+** displays regions of memory
+** displays relevant memory-based registers
+* it has visualizations that:
+** display background tiles
+** display tile maps
+** display memory-based registers in relevant ways
+* has full sound support
+* has a well-organized and well-documented code-base that is easy to follow for anyone familiar with the domain
+* is implemented in Lisp
+* uses the SDL library, and as few additional libraries as possible
+
+
+== Project Demonstration
+
+.The opening screen
+[.thumb]
+image::gb-emulator-start.png[]
+
+=== Debugger
+
+Pressing step several times results in some history and some some changes to machine.
+
+.Stepping through several instructions
+[.thumb]
+image::gb-emulator-stepped.png[]
+
+Any of the previous history items can be clicked, and the machine state is restored.
+
+.Clicking on a previous machine state
+[.thumb]
+image::gb-emulator-previous-state.png[]
+
+NOTE: This instruction caused an update to memory, view-able in the "Memory Updates" region.
+
+The Hex (hexadecimal), Bin (binary), and Dec (decimal) radio buttons change the display of numeric values.
+
+.Viewing values as binary numbers
+[.thumb]
+image::gb-emulator-bin.png[]
+
+You can click "Dec" to see register values interpreted as signed numbers.
+
+.Viewing values as unsigned and (signed) integers
+[.thumb]
+image::gb-emulator-negative.png[]
+
+=== Visualizations
+
+The GameBoy has a Sprite tile map, with tiles 8 pixels by 8 pixels.
+The Tile window displays all of the tiles laid out in memory.
+A specific tile can be zoomed in on using the number entry box.
+
+.Viewing the 26th tile in the tile map: (R).
+[.thumb]
+image::gb-emulator-tile-map.png[]
+
+The GameBoy has a background tile map layout, which lays out tiles from the Sprite tile map.
+The GameBoy renders a portion of this background tile map to the screen.
+The portion and position of the screen is represented as a red rectangle in the Tile Map window.
+
+.Viewing the background tiles laid out on the background tile map.
+[.thumb]
+image::gb-emulator-background-tiles.png[]
+
+Here it is in motion.
+
+.Watching the output view scroll over the background tile map.
+[.thumb]
+image::gb-emulator-background-tiles.gif[]
+
+=== GameBoy Screen
+
+The output is displayed in a zoomed-in window.
+The Animate/Stop radio button starts or stops the full machine simulation.
+
+.Showing the emulator screen.
+[.thumb]
+image::gb-emulator-screen.png[]
+
+Here it is in motion.
+
+.Showing the emulator screen in action: running the BIOS.
+[.thumb]
+image::gb-emulator-output.gif[]
+
+Notice how the output of this screen corresponds to window on the background tile map.
+
+.Showing emulator screen and background tile map simultaneously.
+[.thumb]
+image::gb-emulator-output-and-background-tiles.gif[]
+
+== Code Organization
