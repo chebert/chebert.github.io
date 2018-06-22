@@ -5,6 +5,9 @@
 :pygments-linenums-mode: inline
 :toc:
 
+https://github.com/chebert/gb-emulator-lisp/blob/master/gb-emulator.lisp[Project Source Code]
+
+
 .GameBoy Emulator running the BIOS
 [.thumb]
 image::gb-emulator-full.gif[]
