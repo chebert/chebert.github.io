@@ -5,6 +5,10 @@
 :pygments-linenums-mode: inline
 :toc:
 
+.GameBoy Emulator running the BIOS
+[.thumb]
+image::gb-emulator-full.gif[]
+
 This project demonstrates:
 
 * Understanding and implementation of low-level assembly language
