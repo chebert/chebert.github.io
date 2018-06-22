@@ -28,4 +28,4 @@ server: posts
 
 clean:
 #	Remove all html files that were converted from adoc
-	rm $(BLOG_HTMLS)
+	rm $(BLOG_HTMLS) $(PORTFOLIO_HTMLS)

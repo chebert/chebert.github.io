@@ -1,3 +1,24 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_project_goals">Project Goals</a></li>
+<li><a href="#_project_demonstration">Project Demonstration</a>
+<ul class="sectlevel2">
+<li><a href="#_debugger">Debugger</a></li>
+<li><a href="#_visualizations">Visualizations</a></li>
+<li><a href="#_gameboy_screen">GameBoy Screen</a></li>
+</ul>
+</li>
+<li><a href="#_code_organization">Code Organization</a>
+<ul class="sectlevel2">
+<li><a href="#_machine_structures">Machine Structures</a></li>
+<li><a href="#_flags_registers">Flags &amp; Registers</a></li>
+<li><a href="#_instructions">Instructions</a></li>
+<li><a href="#_main_loop">Main Loop</a></li>
+</ul>
+</li>
+</ul>
+</div>
 <div class="paragraph">
 <p>This project demonstrates:</p>
 </div>
@@ -161,7 +182,9 @@ This project is a work in progress. Currently it only implements enough instruct
 <div class="title">Figure 2. Stepping through several instructions</div>
 </div>
 <div class="paragraph">
-<p>Any of the previous history items can be clicked, and the machine state is restored.</p>
+<p>Registers or flags in red highlight what the instruction leading to the CPU state set or changed, even if the value is the same.
+"Prev CPU" shows the CPU state immediately prior to "CPU".
+Any of the previous history items can be clicked, and the machine state is restored.</p>
 </div>
 <div class="imageblock thumb">
 <div class="content">
@@ -270,6 +293,289 @@ The Animate/Stop radio button starts or stops the full machine simulation.</p>
 <div class="sect1">
 <h2 id="_code_organization">Code Organization</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_machine_structures">Machine Structures</h3>
+<div class="paragraph">
+<p>Each hardware element is modeled as its own structure.
+I have my own brand of read-only structure, called <code>defrecord</code>, which takes a structure name as its first element, and a list of read-only fields.</p>
+</div>
+<div class="listingblock">
+<div class="title">Machine State</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #19177C">defrecord</span> <span style="color: #19177C">machine-state</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  <span style="color: #408080; font-style: italic">;; CPU Registers</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>  <span style="color: #19177C">pc</span> <span style="color: #19177C">sp</span> <span style="color: #19177C">a</span> <span style="color: #19177C">b</span> <span style="color: #19177C">c</span> <span style="color: #19177C">d</span> <span style="color: #19177C">e</span> <span style="color: #19177C">f</span> <span style="color: #19177C">h</span> <span style="color: #19177C">l</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>  <span style="color: #408080; font-style: italic">;; Memory Regions</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>  <span style="color: #19177C">video-ram</span> <span style="color: #19177C">ext-ram</span> <span style="color: #19177C">work-ram</span> <span style="color: #19177C">sprite-ram</span> <span style="color: #19177C">mmap-i/o</span> <span style="color: #19177C">z-ram</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>  <span style="color: #408080; font-style: italic">;; Debug Fields</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>  <span style="color: #408080; font-style: italic">;; Lists of what the last instruction changed</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>  <span style="color: #19177C">affected-regs</span> <span style="color: #19177C">affected-flags</span> <span style="color: #19177C">memory-updates</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>  <span style="color: #408080; font-style: italic">;; The instruction that was just disassembled this step.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>  <span style="color: #19177C">disassembled-instr</span>)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Memory are split into regions and stored in global variables, since there are instances of:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Mirror memory or multiple copies of the same memory</p>
+</li>
+<li>
+<p>Multiple regions of memory can occupy the same space at different times</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Two functions mapping to and from memory handle this translation: <code>(mem-byte addr)</code> and <code>(mem-byte-set! addr byte)</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">mem-byte-set!</span> (<span style="color: #19177C">addr</span> <span style="color: #008000">byte</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  (<span style="color: #008000">push</span> (<span style="color: #008000">cons</span> <span style="color: #19177C">addr</span> <span style="color: #008000">byte</span>) <span style="color: #19177C">*memory-updates*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>  (<span style="color: #008000">cond</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span><span style="background-color: #ffffcc">    <span style="color: #408080; font-style: italic">;; Example of choosing between two memory regions</span>
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span><span style="background-color: #ffffcc">    ((<span style="color: #008000">and</span> (<span style="color: #008000">not</span> (<span style="color: #19177C">bios-run?</span>)) (<span style="color: #008000">&lt;</span> <span style="color: #19177C">addr</span> <span style="color: #666666">#x100</span>))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span><span style="background-color: #ffffcc">     (<span style="color: #008000">setf</span> (<span style="color: #008000">aref</span> <span style="color: #19177C">*bios-rom*</span> <span style="color: #19177C">addr</span>) <span style="color: #008000">byte</span>))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span><span style="background-color: #ffffcc">    ((<span style="color: #008000">&lt;</span> <span style="color: #19177C">addr</span> <span style="color: #666666">#x4000</span>)
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span><span style="background-color: #ffffcc">     <span style="color: #408080; font-style: italic">;; bank0</span>
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span><span style="background-color: #ffffcc">     (<span style="color: #008000">setf</span> (<span style="color: #008000">aref</span> <span style="color: #19177C">*bank0-rom*</span> <span style="color: #19177C">addr</span>) <span style="color: #008000">byte</span>))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>    ((<span style="color: #008000">&lt;</span> <span style="color: #19177C">addr</span> <span style="color: #666666">#x8000</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>     <span style="color: #408080; font-style: italic">;; bank1</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>     (<span style="color: #008000">setf</span> (<span style="color: #008000">aref</span> <span style="color: #19177C">*bank1-rom*</span> (<span style="color: #008000">-</span> <span style="color: #19177C">addr</span> <span style="color: #666666">#x4000</span>)) <span style="color: #008000">byte</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>    ((<span style="color: #008000">&lt;</span> <span style="color: #19177C">addr</span> <span style="color: #666666">#xa000</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>     <span style="color: #408080; font-style: italic">;; vram</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>     (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">addr2</span> (<span style="color: #008000">-</span> <span style="color: #19177C">addr</span> <span style="color: #666666">#x8000</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>       (<span style="color: #008000">setf</span> (<span style="color: #008000">aref</span> <span style="color: #19177C">*video-ram*</span> <span style="color: #19177C">addr2</span>) <span style="color: #008000">byte</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>       (<span style="color: #008000">cond</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>	 ((<span style="color: #008000">&lt;</span> <span style="color: #19177C">addr</span> <span style="color: #666666">#x9800</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span>	  (<span style="color: #19177C">update-tile-data!</span> <span style="color: #19177C">addr2</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">20 </span>	 (<span style="color: #880000">t</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">21 </span>	  <span style="color: #408080; font-style: italic">;; update the tile map</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">22 </span>	  ))))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">23 </span>    ((<span style="color: #008000">&lt;</span> <span style="color: #19177C">addr</span> <span style="color: #666666">#xc000</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">24 </span>     <span style="color: #408080; font-style: italic">;; eram</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">25 </span>     (<span style="color: #008000">setf</span> (<span style="color: #008000">aref</span> <span style="color: #19177C">*ext-ram*</span> (<span style="color: #008000">-</span> <span style="color: #19177C">addr</span> <span style="color: #666666">#xa000</span>)) <span style="color: #008000">byte</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">26 </span>    <span style="color: #408080; font-style: italic">;; Etc., Etc.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">27 </span>     ))</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+<code>mem-byte-set!</code> updates the list of memory-updates that happened this instruction for the debugger.
+It also calls <code>update-tile-data</code> when video RAM changes, which updates the pixels displaying the tile data.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_flags_registers">Flags &amp; Registers</h3>
+<div class="paragraph">
+<p>A set of accessors were created for flags and registers, to ensure that <code>affected-regs</code> and <code>affected-flags</code> were both updated at each instruction for the debugger.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">carry-set!</span> ()
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  (<span style="color: #008000">push</span> <span style="color: #19177C">:f</span> <span style="color: #19177C">*affected-regs*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>  (<span style="color: #008000">push</span> <span style="color: #19177C">:carry</span> <span style="color: #19177C">*affected-flags*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>  (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">*f*</span> (<span style="color: #008000">logior</span> <span style="color: #666666">#x10</span> <span style="color: #19177C">*f*</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">carry-set?</span> () (<span style="color: #008000">not</span> (<span style="color: #19177C">carry-clear?</span>)))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">carry-clear!</span> ()
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>  (<span style="color: #008000">push</span> <span style="color: #19177C">:f</span> <span style="color: #19177C">*affected-regs*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>  (<span style="color: #008000">push</span> <span style="color: #19177C">:carry</span> <span style="color: #19177C">*affected-flags*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>  (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">*f*</span> (<span style="color: #008000">logand</span> (<span style="color: #008000">lognot</span> <span style="color: #666666">#x10</span>) <span style="color: #19177C">*f*</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">carry-clear?</span> () (<span style="color: #008000">zerop</span> (<span style="color: #008000">logand</span> <span style="color: #666666">#x10</span> <span style="color: #19177C">*f*</span>)))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">carry-bit</span> () (<span style="color: #008000; font-weight: bold">if</span> (<span style="color: #19177C">carry-clear?</span>) <span style="color: #666666">0</span> <span style="color: #666666">1</span>))
+</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Functions were made to handle endianness and converting between integer types. Examples include:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">s8</span> (<span style="color: #19177C">u8</span>)
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span><span style="background-color: #ffffcc">  <span style="color: #BA2121">&quot;Returns a signed 8-bit integer given an unsigned 8-bit integer.&quot;</span>
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>  (<span style="color: #008000; font-weight: bold">if</span> (<span style="color: #008000">&gt;=</span> <span style="color: #19177C">u8</span> <span style="color: #666666">#x80</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>      (<span style="color: #008000">-</span> <span style="color: #19177C">u8</span> <span style="color: #666666">#x100</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>      <span style="color: #19177C">u8</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">u16</span> (<span style="color: #19177C">hi</span> <span style="color: #19177C">lo</span>)
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">7 </span><span style="background-color: #ffffcc">  <span style="color: #BA2121">&quot;Returns an unsigned 16-bit integer given a high byte and a low byte (both unsigned).&quot;</span>
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">8 </span>  (<span style="color: #008000">+</span> <span style="color: #19177C">lo</span> (<span style="color: #008000">ash</span> <span style="color: #19177C">hi</span> <span style="color: #666666">8</span>)))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Sub-instructions were created to handle common arithmetic and flag tests. Examples include:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">carry?</span> (<span style="color: #008000">byte</span> <span style="color: #19177C">addend</span>)
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>  (<span style="color: #008000">not</span> (<span style="color: #008000">zerop</span> (<span style="color: #008000">logand</span> <span style="color: #666666">#x100</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>		      (<span style="color: #008000">+</span> (<span style="color: #008000">logand</span> <span style="color: #666666">#xff</span> <span style="color: #008000">byte</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>			 (<span style="color: #008000">logand</span> <span style="color: #666666">#xff</span> <span style="color: #19177C">addend</span>))))))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">borrow?</span> (<span style="color: #008000">byte</span> <span style="color: #19177C">subtracthend</span>)
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span>  (<span style="color: #008000">minusp</span> (<span style="color: #008000">-</span> (<span style="color: #008000">logand</span> <span style="color: #666666">#xff</span> <span style="color: #008000">byte</span>) (<span style="color: #008000">logand</span> <span style="color: #666666">#xff</span> <span style="color: #19177C">subtracthend</span>))))</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_instructions">Instructions</h3>
+<div class="paragraph">
+<p>I wrote two functions to parse bit-strings to make dis-assembly easier.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">bits-match?</span> (<span style="color: #19177C">bp1</span> <span style="color: #19177C">bp2</span> <span style="color: #19177C">either-mask</span>)
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>  (<span style="color: #008000">=</span> (<span style="color: #008000">logior</span> <span style="color: #19177C">bp1</span> <span style="color: #19177C">either-mask</span>) (<span style="color: #008000">logior</span> <span style="color: #19177C">bp2</span> <span style="color: #19177C">either-mask</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">extract-bits</span> (<span style="color: #19177C">bits</span> <span style="color: #19177C">low-idx</span> <span style="color: #008000">length</span>)
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>  <span style="color: #BA2121">&quot;Bits are indexed high to low: e.g. 76543210&quot;</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span>  (<span style="color: #008000">logand</span> (<span style="color: #008000">ash</span> <span style="color: #19177C">bits</span> (<span style="color: #008000">-</span> <span style="color: #19177C">low-idx</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">7 </span>          (<span style="color: #008000">1-</span> (<span style="color: #008000">ash</span> <span style="color: #666666">1</span> <span style="color: #008000">length</span>))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>bits-match?</code> compares a known instruction op-code, and an instruction byte.
+<code>either-mask</code> represents parameter bits (e.g. for register names or ALU op-codes).</p>
+</div>
+<div class="paragraph">
+<p>Instruction implementations use <code>bits-match?</code> to determine if the instruction has been called,
+<code>extract-bits</code> to extract the parameters from the instruction bytes.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">jr-cond-n?</span> (<span style="color: #19177C">b1</span>)
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span><span style="background-color: #ffffcc">  (<span style="color: #19177C">bits-match?</span> <span style="color: #19177C">b1</span>
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>               <span style="color: #666666">#b00100000</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>               <span style="color: #666666">#b00011000</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defparameter</span> <span style="color: #19177C">*conditions*</span> <span style="color: #666666">#(</span><span style="color: #19177C">:not-zero</span> <span style="color: #19177C">:zero</span> <span style="color: #19177C">:not-carry</span> <span style="color: #19177C">:carry</span>))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">jr-cond-n!</span> (<span style="color: #19177C">b1</span> <span style="color: #19177C">b2</span> <span style="color: #19177C">b3</span>)
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>  <span style="color: #408080; font-style: italic">;; no flags</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>  (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">size</span> <span style="color: #666666">2</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>        (<span style="color: #19177C">n</span> (<span style="color: #19177C">s8</span> <span style="color: #19177C">b2</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span><span style="background-color: #ffffcc">        (<span style="color: #19177C">cnd</span> (<span style="color: #008000">aref</span> <span style="color: #19177C">*conditions*</span> (<span style="color: #19177C">extract-bits</span> <span style="color: #19177C">b1</span> <span style="color: #666666">3</span> <span style="color: #666666">2</span>)))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>        (<span style="color: #19177C">cycle-count</span> <span style="color: #666666">8</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>    (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">*disassembled-instr*</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>          (<span style="color: #19177C">make-disassembled-instr</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>           <span style="color: #19177C">:jr</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>           <span style="color: #19177C">b1</span> <span style="color: #19177C">b2</span> <span style="color: #19177C">b3</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>           <span style="color: #19177C">size</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span>           <span style="color: #19177C">cycle-count</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">20 </span>           (<span style="color: #19177C">alist</span> <span style="color: #19177C">:cond</span> <span style="color: #19177C">cnd</span> <span style="color: #19177C">:n</span> <span style="color: #19177C">n</span> <span style="color: #19177C">:adr</span> (<span style="color: #008000">+</span> <span style="color: #19177C">*pc*</span> <span style="color: #19177C">n</span> <span style="color: #19177C">size</span>))))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">21 </span>    (<span style="color: #008000">cond</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">22 </span>      ((<span style="color: #19177C">test-cond</span> <span style="color: #19177C">cnd</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">23 </span>       (<span style="color: #19177C">inc-pc!</span> (<span style="color: #008000">+</span> <span style="color: #19177C">n</span> <span style="color: #19177C">size</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">24 </span>      (<span style="color: #880000">t</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">25 </span>       (<span style="color: #19177C">inc-pc!</span> <span style="color: #19177C">size</span>)))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>jr-cond-n!</code> implements "jump relative to PC if condition is true".
+The condition is extracted from the instruction byte <code>b1</code>.</p>
+</div>
+<div class="paragraph">
+<p>The typical flow of an instruction implementation is:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Determine if the instruction applies: e.g. <code>jr-cond-n?</code></p>
+</li>
+<li>
+<p>Extract the parameters from the instruction bytes</p>
+</li>
+<li>
+<p>Set the <code>*disassembled-instr*</code> debug parameter to this instruction</p>
+</li>
+<li>
+<p>Perform the instruction operation, setting flags, memory, and registers</p>
+</li>
+<li>
+<p>Set the PC (for jumps) or increment the PC by the size of the instruction</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>A single function sets the debug variables, reads the instruction bytes from memory, and runs through all of the instructions until it finds a match.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">exec-instr!</span> ()
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span><span style="background-color: #ffffcc">  (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">*affected-regs*</span> ()
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>        <span style="color: #19177C">*affected-flags*</span> ()
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>        <span style="color: #19177C">*memory-updates*</span> ())
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span><span style="background-color: #ffffcc">  (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">b1</span> (<span style="color: #19177C">mem-pc-byte</span>))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>        (<span style="color: #19177C">b2</span> (<span style="color: #19177C">mem-byte</span> (<span style="color: #008000">+</span> <span style="color: #19177C">*pc*</span> <span style="color: #666666">1</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>        (<span style="color: #19177C">b3</span> (<span style="color: #19177C">mem-byte</span> (<span style="color: #008000">+</span> <span style="color: #19177C">*pc*</span> <span style="color: #666666">2</span>))))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>    (<span style="color: #008000">cond</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>      <span style="color: #408080; font-style: italic">;; Loads</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span><span style="background-color: #ffffcc">      ((<span style="color: #19177C">ld-reg-imm16?</span> <span style="color: #19177C">b1</span>) (<span style="color: #19177C">ld-reg-imm16!</span> <span style="color: #19177C">b1</span> <span style="color: #19177C">b2</span> <span style="color: #19177C">b3</span>))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>      ((<span style="color: #19177C">ld-hl-a?</span> <span style="color: #19177C">b1</span>) (<span style="color: #19177C">ld-hl-a!</span> <span style="color: #19177C">b1</span> <span style="color: #19177C">b2</span> <span style="color: #19177C">b3</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>      <span style="color: #408080; font-style: italic">;; Etc.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>       <span style="color: #408080; font-style: italic">;; Stack ops</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>       ((<span style="color: #19177C">push/pop-r?</span> <span style="color: #19177C">b1</span>) (<span style="color: #19177C">push/pop-r!</span> <span style="color: #19177C">b1</span> <span style="color: #19177C">b2</span> <span style="color: #19177C">b3</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>      <span style="color: #408080; font-style: italic">;; Etc.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>      <span style="color: #408080; font-style: italic">;; Arithmetic/Bit ops</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span>      ((<span style="color: #19177C">alu-op-d?</span> <span style="color: #19177C">b1</span>) (<span style="color: #19177C">alu-op-d!</span> <span style="color: #19177C">b1</span> <span style="color: #19177C">b2</span> <span style="color: #19177C">b3</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">20 </span>      ((<span style="color: #19177C">alu-op-n?</span> <span style="color: #19177C">b1</span>) (<span style="color: #19177C">alu-op-n!</span> <span style="color: #19177C">b1</span> <span style="color: #19177C">b2</span> <span style="color: #19177C">b3</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">21 </span>      <span style="color: #408080; font-style: italic">;; Etc.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">22 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">23 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">24 </span>      <span style="color: #408080; font-style: italic">;; Jumps/Calls</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">25 </span>      ((<span style="color: #19177C">jr-cond-n?</span> <span style="color: #19177C">b1</span>) (<span style="color: #19177C">jr-cond-n!</span> <span style="color: #19177C">b1</span> <span style="color: #19177C">b2</span> <span style="color: #19177C">b3</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">26 </span>      ((<span style="color: #19177C">jr-n?</span> <span style="color: #19177C">b1</span>) (<span style="color: #19177C">jr-n!</span> <span style="color: #19177C">b1</span> <span style="color: #19177C">b2</span> <span style="color: #19177C">b3</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">27 </span>      <span style="color: #408080; font-style: italic">;; Etc.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">28 </span>      ))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">29 </span>  <span style="color: #19177C">:done</span>)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_main_loop">Main Loop</h3>
+<div class="paragraph">
+<p>The Main loop executes at 60 FPS, if the animating toggle is switched, executes 1/60th of a second&#8217;s worth of code.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span><span style="background-color: #ffffcc">(<span style="color: #008000">defun</span> <span style="color: #19177C">main-loop!</span> ()
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  <span style="color: #408080; font-style: italic">;; DEBUG: set the v-blank</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>  (<span style="color: #19177C">mem-byte-set!</span> <span style="color: #666666">#xff44</span> <span style="color: #666666">#x90</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>  (<span style="color: #19177C">load-rom!</span> <span style="color: #19177C">*tetris-filename*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span><span style="background-color: #ffffcc">  (<span style="color: #19177C">gui:main-loop</span> (<span style="color: #19177C">gui:*input*</span> <span style="color: #19177C">frames</span>) <span style="color: #408080; font-style: italic">; </span><b class="conum">(1)</b>
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>    (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">*gui*</span> (<span style="color: #19177C">gui:update-gui!</span> <span style="color: #19177C">*gui*</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span><span style="background-color: #ffffcc">    (<span style="color: #008000">when</span> <span style="color: #19177C">*animating?*</span>
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span><span style="background-color: #ffffcc">      (<span style="color: #19177C">step-frame!</span>))
+</span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>    (<span style="color: #19177C">modest:draw-color!</span> <span style="color: #19177C">gui:*color-bg*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>    (<span style="color: #19177C">ssdl:clear</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>    (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">drawings</span> (<span style="color: #19177C">modest:drawings-sorted</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>                     (<span style="color: #008000">list</span> (<span style="color: #19177C">gui:cursor-drawing</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>                           (<span style="color: #19177C">gui:gui-drawing</span> <span style="color: #19177C">*gui*</span>)))))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>      (<span style="color: #008000">mapc</span> <span style="color: #0000FF">#&#39;</span><span style="color: #19177C">modest:draw-drawing!</span> <span style="color: #19177C">drawings</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>    (<span style="color: #19177C">ssdl:display</span>)))</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>gui:main-loop runs the code body every 1/60th of a second.</p>
+</li>
+</ol>
+</div>
+</div>
 </div>
 </div>
