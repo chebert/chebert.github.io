@@ -100,6 +100,12 @@ image::reconstructing-cave-story-doritos.png[]
 
 This project uses an Object-Oriented approach to code organization.
 A strong attempt was made to follow the "best practices" laid out in "Effective C++" by Scott Meyers.
+Code style used the https://google.github.io/styleguide/cppguide.html[Google C++ Style Guide], with some flexibility.
+
+* Constants prefixed with `k`, using camel case: `kConstantName`
+* Member variables suffixed with `\_`, using snake case: `member_variable_name_`
+* Classes start with capital letters, using camel case: `ClassName`
+
 When doing the design, I tried to maximize "information hiding" to increase the simplicity.
 However, I think that I leaned a bit too hard into this and it resulted in adding complexity.
 
@@ -109,7 +115,18 @@ I tried to re-use code whenever possible, but put off creating abstractions unti
 This resulted in some unique abstractions:
 
 * Kinematics. A kinematics object holds the position and velocity of an object at a given time along a single axis; e.g. the x position an x velocity.
-.Kinematics Class Listing
+* Accelerators. An accelerator object updates a kinematics object according to some pattern.
+Example accelerators are FrictionAccelerator, GravityAccelerator, and ConstantAccelerator.
+Making these into an object made sense, since friction for example is dependent on the velocity.
+A character may have a gravity accelerator applied to the y direction kinematics and friction applied to the x direction kinematics.
+* Composite Collision Rectangle.
+The main character's collision box is actually made up of 4 collision boxes, one for each of top, left, bottom, and right.
+A composite collision rectangle combines these four rectangles to treat them as one collision rectangle.
+* Particle. A particle is an entity that is updated and drawn, does not interact with the environment, and has a short lifespan.
+Examples include ProjectileStarParticle, ProjectileWallParticle, and DeathCloudParticle.
+* Pickup. A pickup is an entity that provides some status-boosting effect when colliding with the player, is updated and drawn, has a short lifespan.
+
+.Kinematics Class
 [source,c++,linenums]
 ----
 struct Kinematics {
@@ -131,18 +148,65 @@ struct Kinematics2D {
    Kinematics x, y;
 };
 ----
-* Accelerators. An accelerator object updates a kinematics object according to some pattern.
-Example accelerators are FrictionAccelerator, GravityAccelerator, and ConstantAccelerator.
-Making these into an object made sense, since friction for example is dependent on the velocity.
-A character may have a gravity accelerator applied to the y direction kinematics and friction applied to the x direction kinematics.
-* Composite Collision Rectangle.
-The main character's collision box is actually made up of 4 collision boxes, one for each of top, left, bottom, and right.
-A composite collision rectangle combines these four rectangles to treat them as one collision rectangle.
-* Particle. A particle is an entity that is updated and drawn, does not interact with the environment, and has a short lifespan.
-Examples include ProjectileStarParticle, ProjectileWallParticle, and DeathCloudParticle.
-* Pickup. A pickup is an entity that provides some status-boosting effect when colliding with the player, is updated and drawn, has a short lifespan.
+
+.Accelerators
+[source,c++,linenums]
+----
+struct Accelerator {
+   virtual void updateVelocity(Kinematics& kinematics, units::MS elapsed_time) const = 0;
+   virtual ~Accelerator() = 0;
+};
+
+// Friction Accelerator derives Accelerator
+
+void FrictionAccelerator::updateVelocity(Kinematics& kinematics, units::MS elapsed_time) const {
+   kinematics.velocity = kinematics.velocity > 0.0f ?
+      std::max(0.0f, kinematics.velocity - friction_ * elapsed_time) :
+      std::min(0.0f, kinematics.velocity + friction_ * elapsed_time);
+}
+----
+
+.Particles
+[source,c++,linenums]
+----
+struct Particle {
+   // update returns false when the Particle's lifespan has expired.
+   virtual bool update(units::MS elapsed_time) = 0;
+   virtual void draw(Graphics& graphics) = 0;
+   virtual ~Particle() = 0;
+};
+
+
+// DeathCloudParticle derives Particle
+// DeathCloudParticle has sprite_, offset_ and speed_ as member variables.
+
+bool DeathCloudParticle::update(units::MS elapsed_time) {
+   sprite_.update();
+   offset_.magnitude += speed_ * elapsed_time;
+   return sprite_.num_completed_loops() == 0;
+}
+----
 
 === Game Units
 
 Cave Story+, a re-release of Cave Story, has two resolutions: the original using 16x16 pixel tiles and an updated resolution using 32x32 pixel tiles.
 In order to facilitate both, a Game Unit was used. All positions, velocities, and accelarations, were converted to use the Game Unit before any calculations were done.
+
+.Example Conversion Functions
+[source,c++,linenums]
+----
+typedef float Game; // Float for extra precision. Intrisic units of position.
+typedef int Pixel; // Integer for discrete units. Pixel values can be +/-.
+typedef unsigned int Tile; // Also discrete, but non-negative.
+
+// HIGH_QUALITY means high resolution, 32x32 pixel tiles.
+inline Pixel gameToPixel(Game game) {
+   return config::getGraphicsQuality() == config::HIGH_QUALITY ?
+      Pixel(round(game)) :
+      Pixel(round(game / 2));
+}
+
+inline Tile gameToTile(Game game) {
+   return Tile(game / kTileSize);
+}
+----

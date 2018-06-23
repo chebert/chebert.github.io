@@ -269,8 +269,24 @@ It tells the story of a robot who finds himself in the underground caves of a fl
 <div class="sectionbody">
 <div class="paragraph">
 <p>This project uses an Object-Oriented approach to code organization.
-A strong attempt was made to follow the "best practices" laid out in "Effective C++" by Scott Meyers.
-When doing the design, I tried to maximize "information hiding" to increase the simplicity.
+A strong attempt was made to follow the "best practices" laid out in "Effective C" by Scott Meyers.
+Code style used the https://google.github.io/styleguide/cppguide.html[Google C Style Guide], with some flexibility.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Constants prefixed with <code>k</code>, using camel case: <code>kConstantName</code></p>
+</li>
+<li>
+<p>Member variables suffixed with <code>_</code>, using snake case: <code>member_variable_name_</code></p>
+</li>
+<li>
+<p>Classes start with capital letters, using camel case: <code>ClassName</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When doing the design, I tried to maximize "information hiding" to increase the simplicity.
 However, I think that I leaned a bit too hard into this and it resulted in adding complexity.</p>
 </div>
 <div class="sect2">
@@ -304,12 +320,92 @@ Examples include ProjectileStarParticle, ProjectileWallParticle, and DeathCloudP
 </li>
 </ul>
 </div>
+<div class="listingblock">
+<div class="title">Kinematics Class</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="c++"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span><span style="color: #008000; font-weight: bold">struct</span> Kinematics {
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>   Kinematics(
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>         units<span style="color: #666666">::</span>Game position,
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>         units<span style="color: #666666">::</span>Velocity velocity)<span style="color: #666666">:</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>      position(position),
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>      velocity(velocity) {}
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>   units<span style="color: #666666">::</span>Game position;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>   units<span style="color: #666666">::</span>Velocity velocity;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>   units<span style="color: #666666">::</span>Game delta(units<span style="color: #666666">::</span>MS elapsed_time) { <span style="color: #008000; font-weight: bold">return</span> velocity <span style="color: #666666">*</span> elapsed_time; }
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>};
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span><span style="color: #008000; font-weight: bold">struct</span> Kinematics2D {
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>   Position2D position() <span style="color: #008000; font-weight: bold">const</span> { <span style="color: #008000; font-weight: bold">return</span> Position2D(x.position, y.position); }
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>   Velocity2D velocity() <span style="color: #008000; font-weight: bold">const</span> { <span style="color: #008000; font-weight: bold">return</span> Velocity2D(x.velocity, y.velocity); }
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>   Kinematics x, y;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>};</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Accelerators</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="c++"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span><span style="color: #008000; font-weight: bold">struct</span> Accelerator {
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>   <span style="color: #008000; font-weight: bold">virtual</span> <span style="color: #B00040">void</span> updateVelocity(Kinematics<span style="color: #666666">&amp;</span> kinematics, units<span style="color: #666666">::</span>MS elapsed_time) <span style="color: #008000; font-weight: bold">const</span> <span style="color: #666666">=</span> <span style="color: #666666">0</span>;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>   <span style="color: #008000; font-weight: bold">virtual</span> <span style="color: #666666">~</span>Accelerator() <span style="color: #666666">=</span> <span style="color: #666666">0</span>;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>};
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span><span style="color: #408080; font-style: italic">// Friction Accelerator derives Accelerator</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span><span style="color: #B00040">void</span> FrictionAccelerator<span style="color: #666666">::</span>updateVelocity(Kinematics<span style="color: #666666">&amp;</span> kinematics, units<span style="color: #666666">::</span>MS elapsed_time) <span style="color: #008000; font-weight: bold">const</span> {
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>   kinematics.velocity <span style="color: #666666">=</span> kinematics.velocity <span style="color: #666666">&gt;</span> <span style="color: #666666">0.0f</span> <span style="color: #666666">?</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>      std<span style="color: #666666">::</span>max(<span style="color: #666666">0.0f</span>, kinematics.velocity <span style="color: #666666">-</span> friction_ <span style="color: #666666">*</span> elapsed_time) <span style="color: #666666">:</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>      std<span style="color: #666666">::</span>min(<span style="color: #666666">0.0f</span>, kinematics.velocity <span style="color: #666666">+</span> friction_ <span style="color: #666666">*</span> elapsed_time);
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Particles</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="c++"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span><span style="color: #008000; font-weight: bold">struct</span> Particle {
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>   <span style="color: #408080; font-style: italic">// update returns false when the Particle&#39;s lifespan has expired.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>   <span style="color: #008000; font-weight: bold">virtual</span> <span style="color: #B00040">bool</span> update(units<span style="color: #666666">::</span>MS elapsed_time) <span style="color: #666666">=</span> <span style="color: #666666">0</span>;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>   <span style="color: #008000; font-weight: bold">virtual</span> <span style="color: #B00040">void</span> <span style="color: #0000FF">draw</span>(Graphics<span style="color: #666666">&amp;</span> graphics) <span style="color: #666666">=</span> <span style="color: #666666">0</span>;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>   <span style="color: #008000; font-weight: bold">virtual</span> <span style="color: #666666">~</span>Particle() <span style="color: #666666">=</span> <span style="color: #666666">0</span>;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>};
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span><span style="color: #408080; font-style: italic">// DeathCloudParticle derives Particle</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span><span style="color: #408080; font-style: italic">// DeathCloudParticle has sprite_, offset_ and speed_ as member variables.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span><span style="color: #B00040">bool</span> DeathCloudParticle<span style="color: #666666">::</span>update(units<span style="color: #666666">::</span>MS elapsed_time) {
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>   sprite_.update();
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>   offset_.magnitude <span style="color: #666666">+=</span> speed_ <span style="color: #666666">*</span> elapsed_time;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>   <span style="color: #008000; font-weight: bold">return</span> sprite_.num_completed_loops() <span style="color: #666666">==</span> <span style="color: #666666">0</span>;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>}</code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_game_units">Game Units</h3>
 <div class="paragraph">
 <p>Cave Story+, a re-release of Cave Story, has two resolutions: the original using 16x16 pixel tiles and an updated resolution using 32x32 pixel tiles.
 In order to facilitate both, a Game Unit was used. All positions, velocities, and accelarations, were converted to use the Game Unit before any calculations were done.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example Conversion Functions</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="c++"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span><span style="color: #008000; font-weight: bold">typedef</span> <span style="color: #B00040">float</span> Game; <span style="color: #408080; font-style: italic">// Float for extra precision. Intrisic units of position.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span><span style="color: #008000; font-weight: bold">typedef</span> <span style="color: #B00040">int</span> Pixel; <span style="color: #408080; font-style: italic">// Integer for discrete units. Pixel values can be +/-.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span><span style="color: #008000; font-weight: bold">typedef</span> <span style="color: #B00040">unsigned</span> <span style="color: #B00040">int</span> Tile; <span style="color: #408080; font-style: italic">// Also discrete, but non-negative.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span><span style="color: #408080; font-style: italic">// HIGH_QUALITY means high resolution, 32x32 pixel tiles.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span><span style="color: #008000; font-weight: bold">inline</span> Pixel <span style="color: #0000FF">gameToPixel</span>(Game game) {
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>   <span style="color: #008000; font-weight: bold">return</span> config<span style="color: #666666">::</span>getGraphicsQuality() <span style="color: #666666">==</span> config<span style="color: #666666">::</span>HIGH_QUALITY <span style="color: #666666">?</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>      Pixel(round(game)) <span style="color: #666666">:</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>      Pixel(round(game <span style="color: #666666">/</span> <span style="color: #666666">2</span>));
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>}
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span><span style="color: #008000; font-weight: bold">inline</span> Tile <span style="color: #0000FF">gameToTile</span>(Game game) {
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>   <span style="color: #008000; font-weight: bold">return</span> Tile(game <span style="color: #666666">/</span> kTileSize);
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>}</code></pre>
+</div>
 </div>
 </div>
 </div>
