@@ -1,4 +1,4 @@
-:imagesdir: ./portfolio_posts
+:imagesdir: ./portfolio_posts/cave-story
 :source-highlighter: pygments
 :pygments-style: default
 :pygments-css: style
@@ -109,6 +109,28 @@ I tried to re-use code whenever possible, but put off creating abstractions unti
 This resulted in some unique abstractions:
 
 * Kinematics. A kinematics object holds the position and velocity of an object at a given time along a single axis; e.g. the x position an x velocity.
+.Kinematics Class Listing
+[source,c++,linenums]
+----
+struct Kinematics {
+   Kinematics(
+         units::Game position,
+         units::Velocity velocity):
+      position(position),
+      velocity(velocity) {}
+
+   units::Game position;
+   units::Velocity velocity;
+
+   units::Game delta(units::MS elapsed_time) { return velocity * elapsed_time; }
+};
+
+struct Kinematics2D {
+   Position2D position() const { return Position2D(x.position, y.position); }
+   Velocity2D velocity() const { return Velocity2D(x.velocity, y.velocity); }
+   Kinematics x, y;
+};
+----
 * Accelerators. An accelerator object updates a kinematics object according to some pattern.
 Example accelerators are FrictionAccelerator, GravityAccelerator, and ConstantAccelerator.
 Making these into an object made sense, since friction for example is dependent on the velocity.

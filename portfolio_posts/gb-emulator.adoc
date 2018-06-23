@@ -1,4 +1,4 @@
-:imagesdir: ./portfolio_posts
+:imagesdir: ./portfolio_posts/gb-emulator
 :source-highlighter: pygments
 :pygments-style: default
 :pygments-css: style
