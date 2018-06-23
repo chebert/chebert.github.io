@@ -425,9 +425,9 @@ var e_nav = function(title, navLinks) {
 
 // Creates a card for a blog post
 var e_card = function(date, title, description, link) {
-    return e_table([[e('h1', e_a(link, title))],
-		    [e_div(date)],
-		    [e_div(description)]]);
+    return e_div([e('h4', e_a(link, title)),
+		  e_div(date),
+		  e_div(description)]);
 }
 
 // Puts the array of cards into a table
@@ -592,18 +592,19 @@ var blog_entries = function() {
 };
 
 var portfolio_entries = function() {
-    var entry = function () {
-	var title = 'Deer';
-	var date = '1/2/3';
-	var description = 'A 3D environmental art game developed by a team of 4 Cal Poly undergrads.';
-	var html = e_html('./blog_posts/6-19-18-my-approach-to-making-simple-websites.html');
-	return portfolio_entry(title, date, description, html);
-    }
     return [
 	portfolio_entry('GameBoy Emulator',
 			'6/21/18',
 			'Describes a WIP GameBoy Emulator, implemented in Lisp.',
 			e_html("./portfolio_posts/gb-emulator.html")),
+	portfolio_entry('Reconstructing Cave Story',
+			'6/22/18',
+			'A video series reverse engineering, explaining, and coding Cave Story in C++.',
+			e_html("./portfolio_posts/reconstructing-cave-story.html")),
+	portfolio_entry('Perfect Fifth',
+			'6/22/18',
+			'An iOS/Google Play app that teaches the fundamentals of musical theory and the Circle of Fifths, written in React Native.',
+			e_html("./portfolio_posts/perfect-fifth.html")),
     ];
 };
 

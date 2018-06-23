@@ -1,0 +1,305 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_project_goals">Project Goals</a>
+<ul class="sectlevel2">
+<li><a href="#_what_is_cave_story">What is Cave Story?</a></li>
+</ul>
+</li>
+<li><a href="#_project_progress">Project Progress</a></li>
+<li><a href="#_code_organization">Code Organization</a>
+<ul class="sectlevel2">
+<li><a href="#_abstractions">Abstractions</a></li>
+<li><a href="#_game_units">Game Units</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><a href="https://www.youtube.com/playlist?list=PL006xsVEsbKjSKBmLu1clo85yLrwjY67X">Video Series</a>
+<a href="https://github.com/chebert/cavestory-screencast">Project Source Code</a>
+<a href="https://www.reddit.com/r/reconstructcavestory/">Project Forum</a></p>
+</div>
+<div class="sect1">
+<h2 id="_project_goals">Project Goals</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Faithfully reconstruct the 2D Platformer: Cave Story</p>
+</li>
+<li>
+<p>Explain theory and every line of code on camera</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Do all coding on video, even fixing mistakes</p>
+</li>
+<li>
+<p>Don&#8217;t plan ahead, show complexity of design</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Engage an audience and adjust content to meet audience needs</p>
+</li>
+<li>
+<p>Written in C++ &amp; SDL</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_what_is_cave_story">What is Cave Story?</h3>
+<div class="paragraph">
+<p>Cave Story is a 2D platformer Indie Game created by a single Japanese man under the pseudonym "Pixel".
+It tells the story of a robot who finds himself in the underground caves of a floating island.</p>
+</div>
+<div class="ulist">
+<div class="title">Some of Cave Story&#8217;s Features</div>
+<ul>
+<li>
+<p>Explorable environments</p>
+</li>
+<li>
+<p>Multiple selectable weapons and upgrades</p>
+</li>
+<li>
+<p>Unique level-up system for weapons</p>
+</li>
+<li>
+<p>Jump mechanics</p>
+</li>
+<li>
+<p>Enemies each with unique behaviors</p>
+</li>
+<li>
+<p>Boss fights</p>
+</li>
+<li>
+<p>Cutscenes and Dialogue</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/cave-story-doritos.png" alt="cave story doritos">
+</div>
+<div class="title">Figure 1. Cave Story features dozens of enemy types, each with unique behaviors.</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/cave-story-bubbler.png" alt="cave story bubbler">
+</div>
+<div class="title">Figure 2. Cave Story has many unique weapon types.</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/cave-story-sand.png" alt="cave story sand">
+</div>
+<div class="title">Figure 3. Cave Story has many locales and environments</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_project_progress">Project Progress</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>80+ Videos</p>
+<div class="ulist">
+<ul>
+<li>
+<p>70+ "Episodes"</p>
+</li>
+<li>
+<p>80k+ views</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>C++ using SDL1.2 Library and some Boost libraries</p>
+</li>
+<li>
+<p>Spawned many re-writes from followers in other languages, demonstrating the clarity of the ideas presented in the videos</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/drbawb/rust-story">drbawb&#8217;s Rust Story</a></p>
+</li>
+<li>
+<p><a href="https://github.com/JIghtuse/cavestory-sdl2">Cave Story written using modern C++ and SDL2</a></p>
+</li>
+<li>
+<p><a href="https://github.com/mystal/cavestory-pysdl2">Cave Story in Python</a></p>
+</li>
+<li>
+<p>Many Others!</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="olist arabic">
+<div class="title">Summary of what was accomplished on video</div>
+<ol class="arabic">
+<li>
+<p>Sprite Animations; Episode 4</p>
+</li>
+<li>
+<p>Player Movement; Episode 9</p>
+</li>
+<li>
+<p>Tile Maps; Episode 11</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Player/Tile Collisions; Episode 13</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Resolution-independent units; Episode 18</p>
+</li>
+<li>
+<p>Enemies; Episode 20</p>
+</li>
+<li>
+<p>Damage/Health; Episode 28</p>
+</li>
+<li>
+<p>HUD; Episode 28</p>
+</li>
+<li>
+<p>Weapons; Episode 34</p>
+</li>
+<li>
+<p>Projectiles; Episode 36</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Projectile Collisions Episode 38</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Particle Effects; Episode 48</p>
+</li>
+<li>
+<p>Gun Experience/Leveling Up; Episode 51</p>
+</li>
+<li>
+<p>Pickups: Health, Experience; Episode 59</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Bouncing objects; interact with environment; Episode 57</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Tile Slopes; Episode 66</p>
+</li>
+</ol>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/cave-story-animated-sprite.gif" alt="cave story animated sprite">
+</div>
+<div class="title">Figure 4. Episode 4; Demonstration of Animated Sprites</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/cave-story-problem-solution.png" alt="cave story problem solution">
+</div>
+<div class="title">Figure 5. Episode 9; Problem-solution approach</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/cave-story-jumping.gif" alt="cave story jumping">
+</div>
+<div class="title">Figure 6. Episode 9; Demonstration of Player Movement</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/cave-story-slide.png" alt="cave story slide">
+</div>
+<div class="title">Figure 7. Episode 12; Explaining Tile Collisions</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/cave-story-damage.gif" alt="cave story damage">
+</div>
+<div class="title">Figure 8. Episode 22; Taking damage from the bat enemy</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/cave-story-polar-star.gif" alt="cave story polar star">
+</div>
+<div class="title">Figure 9. Episode 40.3; Shooting a gun and damage effects</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/reconstructing-cave-story-doritos.png" alt="reconstructing cave story doritos">
+</div>
+<div class="title">Figure 10. Episode 70; Pickups and bouncing power crystals</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_code_organization">Code Organization</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This project uses an Object-Oriented approach to code organization.
+A strong attempt was made to follow the "best practices" laid out in "Effective C++" by Scott Meyers.
+When doing the design, I tried to maximize "information hiding" to increase the simplicity.
+However, I think that I leaned a bit too hard into this and it resulted in adding complexity.</p>
+</div>
+<div class="sect2">
+<h3 id="_abstractions">Abstractions</h3>
+<div class="paragraph">
+<p>I tried to re-use code whenever possible, but put off creating abstractions until there was code being used in multiple places.
+This resulted in some unique abstractions:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Kinematics. A kinematics object holds the position and velocity of an object at a given time along a single axis; e.g. the x position an x velocity.</p>
+</li>
+<li>
+<p>Accelerators. An accelerator object updates a kinematics object according to some pattern.
+Example accelerators are FrictionAccelerator, GravityAccelerator, and ConstantAccelerator.
+Making these into an object made sense, since friction for example is dependent on the velocity.
+A character may have a gravity accelerator applied to the y direction kinematics and friction applied to the x direction kinematics.</p>
+</li>
+<li>
+<p>Composite Collision Rectangle.
+The main character&#8217;s collision box is actually made up of 4 collision boxes, one for each of top, left, bottom, and right.
+A composite collision rectangle combines these four rectangles to treat them as one collision rectangle.</p>
+</li>
+<li>
+<p>Particle. A particle is an entity that is updated and drawn, does not interact with the environment, and has a short lifespan.
+Examples include ProjectileStarParticle, ProjectileWallParticle, and DeathCloudParticle.</p>
+</li>
+<li>
+<p>Pickup. A pickup is an entity that provides some status-boosting effect when colliding with the player, is updated and drawn, has a short lifespan.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_game_units">Game Units</h3>
+<div class="paragraph">
+<p>Cave Story+, a game based on Cave Story, has two resolutions: the original using 16x16 pixel tiles and an updated resolution using 32x32 pixel tiles.
+In order to facilitate both, a Game Unit was used. All positions, velocities, and accelarations, were converted to use the Game Unit before any calculations were done.</p>
+</div>
+</div>
+</div>
+</div>

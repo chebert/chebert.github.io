@@ -1,0 +1,122 @@
+:imagesdir: ./portfolio_posts
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+https://www.youtube.com/playlist?list=PL006xsVEsbKjSKBmLu1clo85yLrwjY67X[Video Series]
+https://github.com/chebert/cavestory-screencast[Project Source Code]
+https://www.reddit.com/r/reconstructcavestory/[Project Forum]
+
+== Project Goals
+
+* Faithfully reconstruct the 2D Platformer: Cave Story
+* Explain theory and every line of code on camera
+** Do all coding on video, even fixing mistakes
+** Don't plan ahead, show complexity of design
+* Engage an audience and adjust content to meet audience needs
+* Written in C++ & SDL
+
+=== What is Cave Story?
+
+Cave Story is a 2D platformer Indie Game created by a single Japanese man under the pseudonym "Pixel".
+It tells the story of a robot who finds himself in the underground caves of a floating island.
+
+.Some of Cave Story's Features
+* Explorable environments
+* Multiple selectable weapons and upgrades
+* Unique level-up system for weapons
+* Jump mechanics
+* Enemies each with unique behaviors
+* Boss fights
+* Cutscenes and Dialogue
+
+.Cave Story features dozens of enemy types, each with unique behaviors.
+image::cave-story-doritos.png[]
+
+.Cave Story has many unique weapon types.
+image::cave-story-bubbler.png[]
+
+.Cave Story has many locales and environments
+image::cave-story-sand.png[]
+
+== Project Progress
+
+* 80+ Videos
+** 70+ "Episodes"
+** 80k+ views
+* C++ using SDL1.2 Library and some Boost libraries
+* Spawned many re-writes from followers in other languages, demonstrating the clarity of the ideas presented in the videos
+** https://github.com/drbawb/rust-story[drbawb's Rust Story]
+** https://github.com/JIghtuse/cavestory-sdl2[Cave Story written using modern C++ and SDL2]
+** https://github.com/mystal/cavestory-pysdl2[Cave Story in Python]
+** Many Others!
+
+.Summary of what was accomplished on video
+. Sprite Animations; Episode 4
+. Player Movement; Episode 9
+. Tile Maps; Episode 11
+.. Player/Tile Collisions; Episode 13
+. Resolution-independent units; Episode 18
+. Enemies; Episode 20
+. Damage/Health; Episode 28
+. HUD; Episode 28
+. Weapons; Episode 34
+. Projectiles; Episode 36
+.. Projectile Collisions Episode 38
+. Particle Effects; Episode 48
+. Gun Experience/Leveling Up; Episode 51
+. Pickups: Health, Experience; Episode 59
+.. Bouncing objects; interact with environment; Episode 57
+. Tile Slopes; Episode 66
+
+.Episode 4; Demonstration of Animated Sprites
+image::cave-story-animated-sprite.gif[]
+
+.Episode 9; Problem-solution approach
+image::cave-story-problem-solution.png[]
+
+.Episode 9; Demonstration of Player Movement
+image::cave-story-jumping.gif[]
+
+.Episode 12; Explaining Tile Collisions
+image::cave-story-slide.png[]
+
+.Episode 22; Taking damage from the bat enemy
+image::cave-story-damage.gif[]
+
+.Episode 40.3; Shooting a gun and damage effects
+image::cave-story-polar-star.gif[]
+
+.Episode 70; Pickups and bouncing power crystals
+image::reconstructing-cave-story-doritos.png[]
+
+== Code Organization
+
+This project uses an Object-Oriented approach to code organization.
+A strong attempt was made to follow the "best practices" laid out in "Effective C++" by Scott Meyers.
+When doing the design, I tried to maximize "information hiding" to increase the simplicity.
+However, I think that I leaned a bit too hard into this and it resulted in adding complexity.
+
+=== Abstractions
+
+I tried to re-use code whenever possible, but put off creating abstractions until there was code being used in multiple places.
+This resulted in some unique abstractions:
+
+* Kinematics. A kinematics object holds the position and velocity of an object at a given time along a single axis; e.g. the x position an x velocity.
+* Accelerators. An accelerator object updates a kinematics object according to some pattern.
+Example accelerators are FrictionAccelerator, GravityAccelerator, and ConstantAccelerator.
+Making these into an object made sense, since friction for example is dependent on the velocity.
+A character may have a gravity accelerator applied to the y direction kinematics and friction applied to the x direction kinematics.
+* Composite Collision Rectangle.
+The main character's collision box is actually made up of 4 collision boxes, one for each of top, left, bottom, and right.
+A composite collision rectangle combines these four rectangles to treat them as one collision rectangle.
+* Particle. A particle is an entity that is updated and drawn, does not interact with the environment, and has a short lifespan.
+Examples include ProjectileStarParticle, ProjectileWallParticle, and DeathCloudParticle.
+* Pickup. A pickup is an entity that provides some status-boosting effect when colliding with the player, is updated and drawn, has a short lifespan.
+
+=== Game Units
+
+Cave Story+, a re-release of Cave Story, has two resolutions: the original using 16x16 pixel tiles and an updated resolution using 32x32 pixel tiles.
+In order to facilitate both, a Game Unit was used. All positions, velocities, and accelarations, were converted to use the Game Unit before any calculations were done.
