@@ -53,6 +53,8 @@ image::cave-story-sand.png[]
 ** https://github.com/mystal/cavestory-pysdl2[Cave Story in Python]
 ** Many Others!
 
+=== Summary
+
 .Summary of what was accomplished on video
 . Sprite Animations; Episode 4
 . Player Movement; Episode 9
@@ -70,6 +72,8 @@ image::cave-story-sand.png[]
 . Pickups: Health, Experience; Episode 59
 .. Bouncing objects; interact with environment; Episode 57
 . Tile Slopes; Episode 66
+
+=== Demonstration
 
 .Episode 4; Demonstration of Animated Sprites
 image::cave-story-animated-sprite.gif[]
