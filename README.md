@@ -22,4 +22,4 @@ All of the JavaScript code is in [common.js](./common.js)
 To run, either
 
 1. just navigate to index.html in your browser: file:///path/to/index.html
-2. run `make server` (assuming you have Python 2 installed) and navigate to [localhost:8000](https://localhost:8000)
+2. run `make server` (assuming you have Python 2 installed) and navigate to [localhost:8000](localhost:8000)
