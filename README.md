@@ -18,3 +18,8 @@ There are four pages,
 The site itself is generated in JavaScript, since I don't like using HTML.
 The two post pages take a title='post title' as a GET parameter, so that the URLs are link-able.
 All of the JavaScript code is in [common.js](./common.js)
+
+To run, either
+
+1. just navigate to index.html in your browser: file:///path/to/index.html
+2. run `make server` (assuming you have Python 2 installed) and navigate to [localhost:8000](localhost:8000)
