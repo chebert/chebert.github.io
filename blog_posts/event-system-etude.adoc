@@ -6,3 +6,135 @@
 :toc:
 
 == What is an Event System?
+
+An event system is a means of communication between various objects, entities, or other systems.
+An "event" or a "message" is a record of something that happened that then gets to delivered to the appropriate entities.
+Entities can then handle the event by
+
+.Entity reactions to events
+* making changes to themselves
+* making changes to the environment
+* causing other events to transpire
+
+.Example events/who they are delivered to
+* a collision between an enemy and a bullet occurs
+** enemy - the enemy would take damage
+** bullet - the bullet would then expire
+** score system/hit counter - the hit percentage would increase
+* a player walks into water
+** all underwater enemies within range
+** sound effect system - a splash sound effect is played
+** player - the player's air meter starts depleting
+* the fire button is pressed
+** player/gun - the gun fires a bullet
+
+In addition to delivering messages to players, events can be delivered to logging systems to aid in debugging.
+
+=== Scripting
+One important use of events is in scripting.
+Scripts can be written to generate and respond to events at appropriate times.
+
+== Events
+
+In order to make events easy for entities to handle, they often have a type tag.
+Events also usually carry some extra data with them, depending on the type.
+
+In Lisp we can do something really simple, just using `defstruct` and `typecase`:
+
+[source,lisp,linenums]
+----
+(defstruct event-quit) ; example of event with no data
+
+(defstruct event-bullet-collision
+  entity
+  bullet)
+(defstruct event-button-press
+  button)
+
+(defun player-handle-event (player event)
+  (typecase event
+    (event-bullet-collision
+     (when (eql (event-bullet-collision-entity event) player)
+       ;; take damage
+       ))
+    (event-button-press
+     (when (eql (event-button-press-button event) :fire)
+       ;; fire bullet
+       ))))
+----
+
+== Event Handling
+
+We have at least two options for event handling:
+
+. Send all events to all entities, regardless of whether the entity is interested
+. Send events only to those entities which are interested in the event
+
+The first is the simpler implementation, but can result in a lot of time sending events to entities that are just going to ignore them.
+
+The second is more complicated, and involves each entity somehow subscribing & unsubscribing for certain types of events.
+
+Implementing the simpler of the two results in a single `handle-event` function which forwards the event to all entities:
+
+[source,lisp,linenums]
+----
+(defun handle-event (event)
+  (sound-system-handle-event event)
+  (log-system-handle-event event)
+  (player-handle-event *player* event)
+  (loop for enemy in *enemies* do
+       (enemy-handle-event enemy event))
+  (loop for object in *objects* do
+       (object-handle-event object event)))
+----
+
+NOTE: Obviously, `handle-event` needs to be tailored to how your entities are organized.
+
+== Event Queue
+
+Systems and entities need some way of _actually creating the events_.
+Usually you want the events to be sent in the order that they occur.
+If that's the case, your event queue can just be a FIFO.
+
+[source,lisp,linenums]
+----
+(defvar *events*) ; Don't forget to initialize this
+
+(defun handle-events ()
+  ;; fifo->list, returns the elements of fifo as a list
+  (let ((events (fifo->list *events*)))
+    ;; fifo, creates a new, empty fifo
+    (setq *events* (fifo))
+    (dolist (event events)
+      (handle-event event))))
+----
+
+
+IMPORTANT: If your event handlers generate more events, it's critical that you handle your events in batches.
+That's why I pull all the events out and create a new event queue before processing them.
+Otherwise you may end up in an infinite cycle.
+
+== Reflections
+
+* Making event handlers functional is just a matter of setting up parameters properly.
+I'll talk about this in a future post.
+* Events could have priority - for example quit event takes priority over everything.
+This can be done by using a priority queue instead of a fifo, and assigning priorities when creating events.
+* Events may have some common data: timestamp, priority, when/where/how they were created and by whom.
+Events could inherit from a base event structure.
+* Events might be "consumed" by entities.
+This can be implemented by *-handle-event functions returning a boolean indicating whether the event was consumed.
+See https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern[chain of responsibility].
+
+.Example Base Event Structure
+[source,lisp,linenums]
+----
+(defstruct event
+  timestamp
+  priority
+  creator)
+
+(defstruct (event-bullet-collision :include event)
+  entity
+  bullet)
+----

@@ -587,7 +587,7 @@ var blog_entries = function() {
 	    "Etude: Event System",
 	    'TODO',
 	    "A short study on event systems.",
-	    e_html('./blog_posts/event-systems-etude.html')),
+	    e_html('./blog_posts/event-system-etude.html')),
 
 	blog_entry(
 	    "Etude: State Machine",
