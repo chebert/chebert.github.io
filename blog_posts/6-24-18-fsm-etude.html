@@ -1,0 +1,465 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_what_are_finite_state_machines">What are Finite State Machines?</a>
+<ul class="sectlevel2">
+<li><a href="#_purpose_of_an_fsm">Purpose of an FSM</a></li>
+<li><a href="#_fsm_examples">FSM Examples</a></li>
+</ul>
+</li>
+<li><a href="#_what_will_this_fsm_implement">What will this FSM implement?</a></li>
+<li><a href="#_what_i_came_up_with">What I came up with&#8230;&#8203;</a></li>
+<li><a href="#_example">Example</a></li>
+<li><a href="#_reflection">Reflection</a></li>
+</ul>
+</div>
+<div class="sect1">
+<h2 id="_what_are_finite_state_machines">What are Finite State Machines?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Finite State Machines (or Finite State Automata) are a tool used in Theory of Computation to describe very simple types of computations.</p>
+</div>
+<div class="paragraph">
+<p>They are comprised of</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>states,</p>
+</li>
+<li>
+<p>transitions between states</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>We typically draw</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>states represented as circles with their names in the center</p>
+</li>
+<li>
+<p>transitions from one state to another as annotated arrows.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>In a transition, the arrow points to the state you are going to be in after the transition.</p>
+</li>
+<li>
+<p>The annotation on an arrow refers to the event that occurs that caused the transition to happen.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>In an FSM, you are only in one state at a time, and you also have a set of a final success states.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+There are other rules to FSM&#8217;s, this isn&#8217;t a comprehensive introduction.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_purpose_of_an_fsm">Purpose of an FSM</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>When practicing theory, an FSM is used to compute whether a sequence of input events ends up in a success state.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>For example: this could be used for determining if a string matches a regular expression.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>When making simulations, an entity can use an FSM to keep track of its state, and automatically change state when certain events happen.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Simulations don&#8217;t really care about success states, but they can still use FSMs.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Important</div>
+</td>
+<td class="content">
+I will be ignoring success states, since I only care about what state an entity is in and how it changes.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_fsm_examples">FSM Examples</h3>
+<div class="paragraph">
+<p>Cave Story has a gun called the Bubbline which fires bubbles.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./blog_posts/fsm-etude/bubbline-fsm.gif" alt="bubbline fsm">
+</div>
+</div>
+<div class="ulist">
+<div class="title">Bubbline Bubble States</div>
+<ul>
+<li>
+<p>Dormant: The bubble hasn&#8217;t been created yet. It&#8217;s still sitting in the gun.</p>
+</li>
+<li>
+<p>Floating: The fire button is being held, and they are floating around the player. They look like bubbles.</p>
+</li>
+<li>
+<p>Firing: They look like a little dagger or lightning bolt, and they travel horizontally.</p>
+</li>
+<li>
+<p>Pop: They explode in mid-air when they haven&#8217;t hit anything.</p>
+</li>
+<li>
+<p>Expired: They don&#8217;t exist any more. They hit an enemy or they popped.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./blog_posts/fsm-etude/bubbline-fsm.png" alt="bubbline fsm">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+It&#8217;s difficult to choose examples, because they are so ubiquitous!
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Another example is YouTube video thumbnails:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./blog_posts/fsm-etude/youtube-fsm.gif" alt="youtube fsm">
+</div>
+</div>
+<div class="ulist">
+<div class="title">YouTube Thumbnail States</div>
+<ul>
+<li>
+<p>Thumbnail: The thumbnail is displayed.</p>
+</li>
+<li>
+<p>Preview: Some short snippets of the video are played back.</p>
+</li>
+<li>
+<p>Preview Finished: The thumbnail is displayed with the watch later icon and a play button icon.</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./blog_posts/fsm-etude/youtube-fsm.png" alt="youtube fsm">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_will_this_fsm_implement">What will this FSM implement?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I want:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the fsm to be a plain-old data structure</p>
+</li>
+<li>
+<p>to have my states simply be names</p>
+</li>
+<li>
+<p>to have my events simply be names</p>
+</li>
+<li>
+<p>to be able to query state</p>
+</li>
+<li>
+<p>to have the fsm detect if an event has occurred</p>
+</li>
+<li>
+<p>to also callbacks for the actual transitions</p>
+</li>
+<li>
+<p>to remove the restriction of having a final state</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_i_came_up_with">What I came up with&#8230;&#8203;</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="title">Structures</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span><span style="color: #408080; font-style: italic">;; Directed Edge</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">fsm-transition</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>  <span style="color: #19177C">start-state</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>  <span style="color: #19177C">end-state</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>  <span style="color: #19177C">event</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>  <span style="color: #19177C">callback</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span><span style="color: #408080; font-style: italic">;; Graph</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">fsm</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>  <span style="color: #408080; font-style: italic">;; The current state</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>  <span style="color: #19177C">state</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>  <span style="color: #19177C">transitions</span>)</code></pre>
+</div>
+</div>
+<div class="ulist">
+<div class="title">The data types:</div>
+<ul>
+<li>
+<p>state: a unique keyword</p>
+</li>
+<li>
+<p>event: a unique keyword</p>
+</li>
+<li>
+<p>fsm-transition: a transition from a start one  to another, predicated by an occurrence of an event</p>
+</li>
+<li>
+<p>fsm: the whole FSM: transitions, states, and the current state</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+You might notice that the FSM could also be modeled as a graph, with states as the nodes and fsm-transitions as the edges.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Since we don&#8217;t really have a final state, all that&#8217;s left to do is handle an event.
+This is pretty straightforward.</p>
+</div>
+<div class="listingblock">
+<div class="title">Event Handling</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">fsm</span> (<span style="color: #19177C">state</span> <span style="color: #19177C">transitions</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  (<span style="color: #19177C">make-fsm</span> <span style="color: #19177C">:state</span> <span style="color: #19177C">state</span> <span style="color: #19177C">:transitions</span> <span style="color: #19177C">transitions</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">fsm-transition</span> (<span style="color: #19177C">start</span> <span style="color: #19177C">event</span> <span style="color: #19177C">end</span> <span style="color: #19177C">callback</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>  (<span style="color: #19177C">make-fsm-transition</span> <span style="color: #19177C">:start-state</span> <span style="color: #19177C">start</span> <span style="color: #19177C">:end-state</span> <span style="color: #19177C">end</span> <span style="color: #19177C">:event</span> <span style="color: #19177C">event</span> <span style="color: #19177C">:callback</span> <span style="color: #19177C">callback</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">fsm-handle-event</span> (<span style="color: #19177C">fsm</span> <span style="color: #19177C">event</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>  <span style="color: #BA2121">&quot;If there is a transition from the current state activated by event, take it.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span><span style="color: #BA2121">Returns the next fsm.&quot;</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>  (<span style="color: #008000; font-weight: bold">let*</span> (
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>         <span style="color: #408080; font-style: italic">;; Find all transitions leading out of the current state</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>         (<span style="color: #19177C">transitions</span> (<span style="color: #19177C">find-all-transitions-from-state</span> <span style="color: #19177C">fsm</span> (<span style="color: #19177C">fsm-state</span> <span style="color: #19177C">fsm</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>         <span style="color: #408080; font-style: italic">;; Find the transition leading out of the current state that is activated</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>         <span style="color: #408080; font-style: italic">;; by the event.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>         (<span style="color: #19177C">transition</span> (<span style="color: #008000">find</span> <span style="color: #19177C">event</span> <span style="color: #19177C">transitions</span> <span style="color: #19177C">:key</span> <span style="color: #19177C">&#39;fsm-transition-event</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>    <span style="color: #408080; font-style: italic">;; If there was a transition activated by the event.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>    (<span style="color: #008000; font-weight: bold">if</span> <span style="color: #19177C">transition</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>        (<span style="color: #008000; font-weight: bold">progn</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>          <span style="color: #408080; font-style: italic">;; Call the callback</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span>          (<span style="color: #008000">funcall</span> (<span style="color: #19177C">fsm-transition-callback</span> <span style="color: #19177C">transition</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">20 </span>          <span style="color: #408080; font-style: italic">;; Set the state to be the end-state of the transition.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">21 </span>          (<span style="color: #19177C">make-fsm</span> <span style="color: #19177C">:state</span> (<span style="color: #19177C">fsm-transition-end-state</span> <span style="color: #19177C">transition</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">22 </span>                    <span style="color: #19177C">:transitions</span> (<span style="color: #19177C">fsm-transitions</span> <span style="color: #19177C">fsm</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">23 </span>        <span style="color: #19177C">fsm</span>)))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Finding the transitions goes without explanation.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">find-all-transitions-from-state</span> (<span style="color: #19177C">fsm</span> <span style="color: #19177C">state</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>  <span style="color: #BA2121">&quot;List of all transitions in fsm leading out of state.&quot;</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>  (<span style="color: #008000">loop</span> <span style="color: #19177C">for</span> <span style="color: #19177C">transition</span> <span style="color: #19177C">in</span> (<span style="color: #19177C">fsm-transitions</span> <span style="color: #19177C">fsm</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>     <span style="color: #008000">when</span> (<span style="color: #008000">eql</span> (<span style="color: #19177C">fsm-transition-start-state</span> <span style="color: #19177C">transition</span>) <span style="color: #19177C">state</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>     <span style="color: #19177C">collecting</span> <span style="color: #19177C">transition</span>))</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_example">Example</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I&#8217;m going to test my FSM on the Bubbline example.
+I&#8217;ll assume that the bubble already exists and that it is dormant.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+I added a state (dormant) and a transition (floating to expired when touched) from the original example.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Setting up the FSM</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defparameter</span> <span style="color: #19177C">*bubbline-states*</span> <span style="color: #666666">&#39;</span>(<span style="color: #19177C">:dormant</span> <span style="color: #19177C">:floating</span> <span style="color: #19177C">:firing</span> <span style="color: #19177C">:pop</span> <span style="color: #19177C">:expired</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>(<span style="color: #008000">defparameter</span> <span style="color: #19177C">*bubbline-transitions*</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>  (<span style="color: #008000">list</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>   <span style="color: #408080; font-style: italic">;; Transition that goes from state &quot;dormant&quot; to state &quot;floating&quot; when &quot;fire-button-pressed&quot; event occurs</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>   (<span style="color: #19177C">fsm-transition</span> <span style="color: #19177C">:dormant</span> <span style="color: #19177C">:fire-button-pressed</span> <span style="color: #19177C">:floating</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>                   (<span style="color: #008000; font-weight: bold">lambda</span> () (<span style="color: #008000">print</span> <span style="color: #BA2121">&quot;creating: button pressed&quot;</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>   (<span style="color: #19177C">fsm-transition</span> <span style="color: #19177C">:floating</span> <span style="color: #19177C">:fire-button-released</span> <span style="color: #19177C">:firing</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>                   (<span style="color: #008000; font-weight: bold">lambda</span> () (<span style="color: #008000">print</span> <span style="color: #BA2121">&quot;firing: button released&quot;</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>   (<span style="color: #19177C">fsm-transition</span> <span style="color: #19177C">:floating</span> <span style="color: #19177C">:float-timer-expired</span> <span style="color: #19177C">:firing</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>                   (<span style="color: #008000; font-weight: bold">lambda</span> () (<span style="color: #008000">print</span> <span style="color: #BA2121">&quot;firing: timer expired&quot;</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>   (<span style="color: #19177C">fsm-transition</span> <span style="color: #19177C">:floating</span> <span style="color: #19177C">:touched-object</span> <span style="color: #19177C">:expired</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>                   (<span style="color: #008000; font-weight: bold">lambda</span> () (<span style="color: #008000">print</span> <span style="color: #BA2121">&quot;expiring: touched an object&quot;</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>   (<span style="color: #19177C">fsm-transition</span> <span style="color: #19177C">:firing</span> <span style="color: #19177C">:fire-timer-expired</span> <span style="color: #19177C">:pop</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>                   (<span style="color: #008000; font-weight: bold">lambda</span> () (<span style="color: #008000">print</span> <span style="color: #BA2121">&quot;popping&quot;</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>   (<span style="color: #19177C">fsm-transition</span> <span style="color: #19177C">:firing</span> <span style="color: #19177C">:touched-object</span> <span style="color: #19177C">:expired</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>                   (<span style="color: #008000; font-weight: bold">lambda</span> () (<span style="color: #008000">print</span> <span style="color: #BA2121">&quot;expiring: touched an object&quot;</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">20 </span>   (<span style="color: #19177C">fsm-transition</span> <span style="color: #19177C">:pop</span> <span style="color: #19177C">:pop-timer-expired</span> <span style="color: #19177C">:expired</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">21 </span>                   (<span style="color: #008000; font-weight: bold">lambda</span> () (<span style="color: #008000">print</span> <span style="color: #BA2121">&quot;expiring: timer expired&quot;</span>)))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And running my FSM through a simple scenario.</p>
+</div>
+<div class="listingblock">
+<div class="title">Sample run of the Bubbline bubble FSM handling some events</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">fsm</span> (<span style="color: #19177C">fsm</span> <span style="color: #19177C">:dormant</span> <span style="color: #19177C">*bubbline-transitions*</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  (<span style="color: #008000">print</span> (<span style="color: #008000">list</span> <span style="color: #BA2121">&quot;state: &quot;</span> (<span style="color: #19177C">fsm-state</span> <span style="color: #19177C">fsm</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>  (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">fsm</span> (<span style="color: #19177C">fsm-handle-event</span> <span style="color: #19177C">fsm</span> <span style="color: #19177C">:fire-button-pressed</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>  (<span style="color: #008000">print</span> (<span style="color: #008000">list</span> <span style="color: #BA2121">&quot;state: &quot;</span> (<span style="color: #19177C">fsm-state</span> <span style="color: #19177C">fsm</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>  (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">fsm</span> (<span style="color: #19177C">fsm-handle-event</span> <span style="color: #19177C">fsm</span> <span style="color: #19177C">:float-timer-expired</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>  (<span style="color: #008000">print</span> (<span style="color: #008000">list</span> <span style="color: #BA2121">&quot;state: &quot;</span> (<span style="color: #19177C">fsm-state</span> <span style="color: #19177C">fsm</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>  (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">fsm</span> (<span style="color: #19177C">fsm-handle-event</span> <span style="color: #19177C">fsm</span> <span style="color: #19177C">:fire-timer-expired</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>  (<span style="color: #008000">print</span> (<span style="color: #008000">list</span> <span style="color: #BA2121">&quot;state: &quot;</span> (<span style="color: #19177C">fsm-state</span> <span style="color: #19177C">fsm</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>  (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">fsm</span> (<span style="color: #19177C">fsm-handle-event</span> <span style="color: #19177C">fsm</span> <span style="color: #19177C">:pop-timer-expired</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>  (<span style="color: #008000">print</span> (<span style="color: #008000">list</span> <span style="color: #BA2121">&quot;state: &quot;</span> (<span style="color: #19177C">fsm-state</span> <span style="color: #19177C">fsm</span>))))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span><span style="color: #408080; font-style: italic">#||</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span><span style="color: #408080; font-style: italic">Output:</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span><span style="color: #408080; font-style: italic">(&quot;state: &quot; :DORMANT)</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span><span style="color: #408080; font-style: italic">&quot;creating: button pressed&quot;</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">20 </span><span style="color: #408080; font-style: italic">(&quot;state: &quot; :FLOATING)</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">21 </span><span style="color: #408080; font-style: italic">&quot;firing: timer expired&quot;</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">22 </span><span style="color: #408080; font-style: italic">(&quot;state: &quot; :FIRING)</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">23 </span><span style="color: #408080; font-style: italic">&quot;popping&quot;</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">24 </span><span style="color: #408080; font-style: italic">(&quot;state: &quot; :POP)</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">25 </span><span style="color: #408080; font-style: italic">&quot;expiring: timer expired&quot;</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">26 </span><span style="color: #408080; font-style: italic">(&quot;state: &quot; :EXPIRED)</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">27 </span><span style="color: #408080; font-style: italic">||#</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And here is the FSM generated using GraphViz.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./blog_posts/fsm-etude/bubbline-graphviz-fsm.png" alt="bubbline graphviz fsm">
+</div>
+</div>
+<div class="listingblock">
+<div class="title">The code to generate the GraphViz</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">write-fsm-graphviz</span> (<span style="color: #19177C">fsm</span> <span style="color: #008000; font-weight: bold">&amp;optional</span> (<span style="color: #0000FF; font-weight: bold">stream</span> <span style="color: #19177C">*standard-output*</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>  (<span style="color: #008000">format</span> <span style="color: #0000FF; font-weight: bold">stream</span> <span style="color: #BA2121">&quot;~&amp;digraph {~%&quot;</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>  (<span style="color: #008000">loop</span> <span style="color: #19177C">for</span> <span style="color: #19177C">transition</span> <span style="color: #19177C">in</span> (<span style="color: #19177C">fsm-transitions</span> <span style="color: #19177C">fsm</span>) <span style="color: #008000">do</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>       (<span style="color: #008000">format</span> <span style="color: #0000FF; font-weight: bold">stream</span> <span style="color: #BA2121">&quot;~A -&gt; ~A [ label = \&quot;~A\&quot; ];~%&quot;</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>               (<span style="color: #19177C">fsm-transition-start-state</span> <span style="color: #19177C">transition</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span>               (<span style="color: #19177C">fsm-transition-end-state</span> <span style="color: #19177C">transition</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">7 </span>               (<span style="color: #19177C">fsm-transition-event</span> <span style="color: #19177C">transition</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">8 </span>  (<span style="color: #008000">format</span> <span style="color: #0000FF; font-weight: bold">stream</span> <span style="color: #BA2121">&quot;}&quot;</span>))</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reflection">Reflection</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Transitions could use event-matcher functions for complex event detection: e.g. HP decreased below 20.</p>
+</li>
+<li>
+<p>This could be incorporated with an event system.</p>
+</li>
+<li>
+<p>The objects in the event system may need to watch their state (like timers or animations) and issue events when things finish.</p>
+</li>
+<li>
+<p>There is some room for optimization, when finding the correct transition to take</p>
+</li>
+<li>
+<p>It&#8217;s possible to re-wire FSM&#8217;s by setting transitions</p>
+</li>
+<li>
+<p>Callback functions take zero arguments and don&#8217;t return anything.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>They can use parameters or</p>
+</li>
+<li>
+<p>they can affect global state or</p>
+</li>
+<li>
+<p>I could re-write these functions to take and return something (I don&#8217;t know what).</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>States are implicitly declared in this implementation of the FSM</p>
+</li>
+<li>
+<p>Sometimes things that look like transitions are more effectively modeled as states, especially if the transitions take time to occur.
+Transitions in the FSM sense should be instantaneous.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>

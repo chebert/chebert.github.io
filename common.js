@@ -584,6 +584,12 @@ var e_portfolio_post_page = function() {
 var blog_entries = function() {
     return [
 	blog_entry(
+	    "Etude: State Machine",
+	    '6/24/18',
+	    "An etude which presents a State Machine which may or may not be independently useful.",
+	    e_html('./blog_posts/6-24-18-fsm-etude.html')),
+
+	blog_entry(
 	    "A Superior Web Framework for Those Who Don't Much Care for Web Development",
 	    '6/19/18',
 	    "In which I present Yet Another Web Framework which may work well with people who tend to work against the grain.",

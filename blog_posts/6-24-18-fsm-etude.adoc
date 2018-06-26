@@ -1,0 +1,245 @@
+:imagesdir: ./blog_posts/fsm-etude
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+== What are Finite State Machines?
+
+Finite State Machines (or Finite State Automata) are a tool used in Theory of Computation to describe very simple types of computations.
+
+They are comprised of
+
+* states,
+* transitions between states
+
+We typically draw
+
+* states represented as circles with their names in the center
+* transitions from one state to another as annotated arrows.
+** In a transition, the arrow points to the state you are going to be in after the transition.
+** The annotation on an arrow refers to the event that occurs that caused the transition to happen.
+
+In an FSM, you are only in one state at a time, and you also have a set of a final success states.
+
+NOTE: There are other rules to FSM's, this isn't a comprehensive introduction.
+
+=== Purpose of an FSM
+
+* When practicing theory, an FSM is used to compute whether a sequence of input events ends up in a success state.
+** For example: this could be used for determining if a string matches a regular expression.
+* When making simulations, an entity can use an FSM to keep track of its state, and automatically change state when certain events happen.
+** Simulations don't really care about success states, but they can still use FSMs.
+
+IMPORTANT: I will be ignoring success states, since I only care about what state an entity is in and how it changes.
+
+
+=== FSM Examples
+
+Cave Story has a gun called the Bubbline which fires bubbles.
+
+image::bubbline-fsm.gif[]
+
+.Bubbline Bubble States
+* Dormant: The bubble hasn't been created yet. It's still sitting in the gun.
+* Floating: The fire button is being held, and they are floating around the player. They look like bubbles.
+* Firing: They look like a little dagger or lightning bolt, and they travel horizontally.
+* Pop: They explode in mid-air when they haven't hit anything.
+* Expired: They don't exist any more. They hit an enemy or they popped.
+
+image::bubbline-fsm.png[]
+
+NOTE: It's difficult to choose examples, because they are so ubiquitous!
+
+Another example is YouTube video thumbnails:
+
+image::youtube-fsm.gif[]
+
+.YouTube Thumbnail States
+* Thumbnail: The thumbnail is displayed.
+* Preview: Some short snippets of the video are played back.
+* Preview Finished: The thumbnail is displayed with the watch later icon and a play button icon.
+
+image::youtube-fsm.png[]
+
+== What will this FSM implement?
+
+I want:
+
+* the fsm to be a plain-old data structure
+* to have my states simply be names
+* to have my events simply be names
+* to be able to query state
+* to have the fsm detect if an event has occurred
+* to also callbacks for the actual transitions
+* to remove the restriction of having a final state
+
+== What I came up with...
+
+
+.Structures
+[source,lisp,linenums]
+----
+;; Directed Edge
+(defstruct fsm-transition
+  start-state
+  end-state
+  event
+  callback)
+;; Graph
+(defstruct fsm
+  ;; The current state
+  state
+  transitions)
+----
+
+.The data types:
+* state: a unique keyword
+* event: a unique keyword
+* fsm-transition: a transition from a start one  to another, predicated by an occurrence of an event
+* fsm: the whole FSM: transitions, states, and the current state
+
+NOTE: You might notice that the FSM could also be modeled as a graph, with states as the nodes and fsm-transitions as the edges.
+
+Since we don't really have a final state, all that's left to do is handle an event.
+This is pretty straightforward.
+
+.Event Handling
+[source,lisp,linenums]
+----
+(defun fsm (state transitions)
+  (make-fsm :state state :transitions transitions))
+(defun fsm-transition (start event end callback)
+  (make-fsm-transition :start-state start :end-state end :event event :callback callback))
+
+(defun fsm-handle-event (fsm event)
+  "If there is a transition from the current state activated by event, take it.
+Returns the next fsm."
+  (let* (
+         ;; Find all transitions leading out of the current state
+         (transitions (find-all-transitions-from-state fsm (fsm-state fsm)))
+         ;; Find the transition leading out of the current state that is activated
+         ;; by the event.
+         (transition (find event transitions :key 'fsm-transition-event)))
+    ;; If there was a transition activated by the event.
+    (if transition
+        (progn
+          ;; Call the callback
+          (funcall (fsm-transition-callback transition))
+          ;; Set the state to be the end-state of the transition.
+          (make-fsm :state (fsm-transition-end-state transition)
+                    :transitions (fsm-transitions fsm)))
+        fsm)))
+----
+
+Finding the transitions goes without explanation.
+
+[source,lisp,linenums]
+----
+(defun find-all-transitions-from-state (fsm state)
+  "List of all transitions in fsm leading out of state."
+  (loop for transition in (fsm-transitions fsm)
+     when (eql (fsm-transition-start-state transition) state)
+     collecting transition))
+----
+
+== Example
+
+I'm going to test my FSM on the Bubbline example. 
+I'll assume that the bubble already exists and that it is dormant.
+
+NOTE: I added a state (dormant) and a transition (floating to expired when touched) from the original example.
+
+.Setting up the FSM
+[source,lisp,linenums]
+----
+(defparameter *bubbline-states* '(:dormant :floating :firing :pop :expired))
+(defparameter *bubbline-transitions*
+  (list
+   ;; Transition that goes from state "dormant" to state "floating" when "fire-button-pressed" event occurs
+   (fsm-transition :dormant :fire-button-pressed :floating
+                   (lambda () (print "creating: button pressed")))
+
+   (fsm-transition :floating :fire-button-released :firing
+                   (lambda () (print "firing: button released")))
+   (fsm-transition :floating :float-timer-expired :firing
+                   (lambda () (print "firing: timer expired")))
+   (fsm-transition :floating :touched-object :expired
+                   (lambda () (print "expiring: touched an object")))
+
+   (fsm-transition :firing :fire-timer-expired :pop
+                   (lambda () (print "popping")))
+   (fsm-transition :firing :touched-object :expired
+                   (lambda () (print "expiring: touched an object")))
+
+   (fsm-transition :pop :pop-timer-expired :expired
+                   (lambda () (print "expiring: timer expired")))))
+----
+
+And running my FSM through a simple scenario.
+
+.Sample run of the Bubbline bubble FSM handling some events
+[source,lisp,linenums]
+----
+(let ((fsm (fsm :dormant *bubbline-transitions*)))
+  (print (list "state: " (fsm-state fsm)))
+
+  (setq fsm (fsm-handle-event fsm :fire-button-pressed))
+  (print (list "state: " (fsm-state fsm)))
+
+  (setq fsm (fsm-handle-event fsm :float-timer-expired))
+  (print (list "state: " (fsm-state fsm)))
+
+  (setq fsm (fsm-handle-event fsm :fire-timer-expired))
+  (print (list "state: " (fsm-state fsm)))
+
+  (setq fsm (fsm-handle-event fsm :pop-timer-expired))
+  (print (list "state: " (fsm-state fsm))))
+#||
+Output:
+
+("state: " :DORMANT) 
+"creating: button pressed" 
+("state: " :FLOATING) 
+"firing: timer expired" 
+("state: " :FIRING) 
+"popping" 
+("state: " :POP) 
+"expiring: timer expired" 
+("state: " :EXPIRED) 
+||#
+----
+
+And here is the FSM generated using GraphViz.
+
+image::bubbline-graphviz-fsm.png[]
+
+.The code to generate the GraphViz
+[source,lisp,linenums]
+----
+(defun write-fsm-graphviz (fsm &optional (stream *standard-output*))
+  (format stream "~&digraph {~%")
+  (loop for transition in (fsm-transitions fsm) do
+       (format stream "~A -> ~A [ label = \"~A\" ];~%"
+               (fsm-transition-start-state transition)
+               (fsm-transition-end-state transition)
+               (fsm-transition-event transition)))
+  (format stream "}"))
+----
+
+== Reflection
+
+* Transitions could use event-matcher functions for complex event detection: e.g. HP decreased below 20.
+* This could be incorporated with an event system.
+* The objects in the event system may need to watch their state (like timers or animations) and issue events when things finish.
+* There is some room for optimization, when finding the correct transition to take
+* It's possible to re-wire FSM's by setting transitions
+* Callback functions take zero arguments and don't return anything.
+** They can use parameters or
+** they can affect global state or
+** I could re-write these functions to take and return something (I don't know what).
+* States are implicitly declared in this implementation of the FSM
+* Sometimes things that look like transitions are more effectively modeled as states, especially if the transitions take time to occur.
+Transitions in the FSM sense should be instantaneous.
+
