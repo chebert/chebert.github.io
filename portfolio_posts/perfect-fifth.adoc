@@ -7,3 +7,9 @@
 
 https://itunes.apple.com/us/app/perfect-fifth/id1382879040?mt=8[iTunes Store]
 https://play.google.com/store/apps/details?id=com.tritone.perfectfifth[Play Store]
+
+Perfect Fifth is a phone app written to teach beginning musicians about the concepts of tonal harmony.
+It is the brainchild of Jazz Saxophonist Lukas Hein with contributions from Christopher Hebert and Aidan O'Malley.
+It was developed as part of Oregon State University's Senior Capstone for undergraduates in Computer Science.
+
+
