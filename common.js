@@ -583,11 +583,13 @@ var e_portfolio_post_page = function() {
 
 var blog_entries = function() {
     return [
+	/*
 	blog_entry(
 	    "Etude: Event System",
 	    'TODO',
 	    "A short study on event systems.",
 	    e_html('./blog_posts/event-system-etude.html')),
+	*/
 
 	blog_entry(
 	    "Etude: State Machine",
