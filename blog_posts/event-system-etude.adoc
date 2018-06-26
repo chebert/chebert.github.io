@@ -1,0 +1,8 @@
+:imagesdir: ./blog_posts/event-system-etude
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+== What is an Event System?
