@@ -43,8 +43,8 @@ It still provides all of the benefits I like, but it isn't "pure".
 
 It's _really_ simple.
 
-. Have the functional interface function set up the dynamic context
-.. Within this context call as many non-functional functions which modify this context
+. Have the functional interface function set up the dynamic context (the monad)
+.. Within this context call as many non-functional functions which modify this context (the monadic functions)
 
 Here's an example of updating a game state.
 
@@ -79,6 +79,22 @@ From the perspective of `update-player`, `\*drawings*` and `\*events*` are both 
 They'll use a function like `fifo-push!`.
 Outside of `update-state` nothing appears to be modified.
 
+Testing is as straightforward as setting up a context:
+
+[source,lisp,linenums]
+----
+(defun test-update-player ()
+  (let* ((*drawings* (fifo))
+         (*events* (fifo))
+         (player (make-test-player))
+
+         (next-player (update-player player)))
+    ;; Test whatever you need to about the player
+    (assert-player-has-fallen next-player)
+    ;; Test what events were generated from updating the player
+    (assert (eql (length (fifo->list *events*)) 3))))
+----
+
 == Reflection
 
 * you don't get any automatic type-checking: you have to rely on convention and/or documentation
@@ -89,4 +105,5 @@ Outside of `update-state` nothing appears to be modified.
 ** For example `update-state` could be called from within `update-state` (not that you would want to)
 * leaving variables undefined at the top level can help ensure that these non-functional functions (`update-player`, `update-enemies`)
 are only called from a dynamic context
-* this is really just another way of understanding dynamic variables in the context of functional programming
+* having a lot of "monads" and "monadic functions" can make things complicated really quickly
+** probably better to have a few monads with many uses

@@ -98,11 +98,11 @@ It still provides all of the benefits I like, but it isn&#8217;t "pure".</p>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Have the functional interface function set up the dynamic context</p>
+<p>Have the functional interface function set up the dynamic context (the monad)</p>
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
-<p>Within this context call as many non-functional functions which modify this context</p>
+<p>Within this context call as many non-functional functions which modify this context (the monadic functions)</p>
 </li>
 </ol>
 </div>
@@ -144,6 +144,23 @@ It still provides all of the benefits I like, but it isn&#8217;t "pure".</p>
 They&#8217;ll use a function like <code>fifo-push!</code>.
 Outside of <code>update-state</code> nothing appears to be modified.</p>
 </div>
+<div class="paragraph">
+<p>Testing is as straightforward as setting up a context:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">test-update-player</span> ()
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  (<span style="color: #008000; font-weight: bold">let*</span> ((<span style="color: #19177C">*drawings*</span> (<span style="color: #19177C">fifo</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>         (<span style="color: #19177C">*events*</span> (<span style="color: #19177C">fifo</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>         (<span style="color: #19177C">player</span> (<span style="color: #19177C">make-test-player</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>         (<span style="color: #19177C">next-player</span> (<span style="color: #19177C">update-player</span> <span style="color: #19177C">player</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>    <span style="color: #408080; font-style: italic">;; Test whatever you need to about the player</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>    (<span style="color: #19177C">assert-player-has-fallen</span> <span style="color: #19177C">next-player</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>    <span style="color: #408080; font-style: italic">;; Test what events were generated from updating the player</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>    (<span style="color: #008000">assert</span> (<span style="color: #008000">eql</span> (<span style="color: #008000">length</span> (<span style="color: #19177C">fifo-&gt;list</span> <span style="color: #19177C">*events*</span>)) <span style="color: #666666">3</span>))))</code></pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -178,7 +195,14 @@ Outside of <code>update-state</code> nothing appears to be modified.</p>
 are only called from a dynamic context</p>
 </li>
 <li>
-<p>this is really just another way of understanding dynamic variables in the context of functional programming</p>
+<p>having a lot of "monads" and "monadic functions" can make things complicated really quickly</p>
+<div class="ulist">
+<ul>
+<li>
+<p>probably better to have a few monads with many uses</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
