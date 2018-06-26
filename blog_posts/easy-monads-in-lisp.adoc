@@ -1,0 +1,92 @@
+:imagesdir: ./blog_posts/easy-monads-in-lisp
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+So I had an idea for implementing monads using dynamic variables in Lisp.
+I appreciate the benefits of functional programming, primarily:
+
+* simple interfaces
+* data-driven
+* easy to test
+* non-destructive operations.
+
+One of the most challenging parts of functional programming is modeling effects.
+The other challenging part is interacting with IO (reading random variables and such).
+
+== What are Monads?
+
+https://wiki.haskell.org/Monad_tutorials_timeline[Haha]
+
+Yeah. I'm not adding to that list.
+Suffice it to say that monads are actually a pretty simple but abstract tool to model effects.
+
+I don't want to replace monads, but I want a tool that fits the same bill.
+
+=== My definition of functional.
+
+I've a pretty lax definition of functional code:
+
+* state of meaningful part of application does not change
+** anything goes for debug state
+* functions that use random numbers
+** Tests can use a predictable random number sequence to make testing easy.
+* functions that read from the hard drive or write to new files
+* functions that modify destructively internal state or call non-functional code as long as the interface is functional
+
+We shall call it pseudo-functional. 
+It still provides all of the benefits I like, but it isn't "pure".
+
+== How to make functions pseudo-functional using dynamic variables
+
+It's _really_ simple.
+
+. Have the functional interface function set up the dynamic context
+.. Within this context call as many non-functional functions which modify this context
+
+Here's an example of updating a game state.
+
+[source,lisp,linenums]
+----
+(defvar *events*)
+(defvar *drawings*)
+
+(defstruct state
+  player
+  enemies
+  ;; Etc.
+  drawings
+  events)
+
+(defun update-state (state)
+  ;; Dynamic Context: *drawings*, *events*
+  (let* ((*drawings* (fifo))
+         (*events* (fifo)))
+    (make-state
+     ;; update-player returns the updated player,
+     ;; and pushes events to the *events* fifo and drawings to the *drawings* fifo
+     :player (update-player (state-player state))
+     ;; Similarly update enemies
+     :enemies (update-enemies (state-enemies state))
+     ;; etc.
+     :drawings *drawings*
+     :events *events*)))
+----
+
+From the perspective of `update-player`, `\*drawings*` and `\*events*` are both append only.
+They'll use a function like `fifo-push!`.
+Outside of `update-state` nothing appears to be modified.
+
+== Reflection
+
+* you don't get any automatic type-checking: you have to rely on convention and/or documentation
+* you still have to be very careful about destructively modifying anything
+* there's no need to wire a lot of additional state through, or attach state to arbitrary structures
+* no complicated multiple-value returns or structures: functions return one object
+* because of the nature of dynamic variables, this approach is nest-able
+** For example `update-state` could be called from within `update-state` (not that you would want to)
+* leaving variables undefined at the top level can help ensure that these non-functional functions (`update-player`, `update-enemies`)
+are only called from a dynamic context
+* this is really just another way of understanding dynamic variables in the context of functional programming

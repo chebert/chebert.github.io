@@ -1,0 +1,186 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_what_are_monads">What are Monads?</a>
+<ul class="sectlevel2">
+<li><a href="#_my_definition_of_functional">My definition of functional.</a></li>
+</ul>
+</li>
+<li><a href="#_how_to_make_functions_pseudo_functional_using_dynamic_variables">How to make functions pseudo-functional using dynamic variables</a></li>
+<li><a href="#_reflection">Reflection</a></li>
+</ul>
+</div>
+<div class="paragraph">
+<p>So I had an idea for implementing monads using dynamic variables in Lisp.
+I appreciate the benefits of functional programming, primarily:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>simple interfaces</p>
+</li>
+<li>
+<p>data-driven</p>
+</li>
+<li>
+<p>easy to test</p>
+</li>
+<li>
+<p>non-destructive operations.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>One of the most challenging parts of functional programming is modeling effects.
+The other challenging part is interacting with IO (reading random variables and such).</p>
+</div>
+<div class="sect1">
+<h2 id="_what_are_monads">What are Monads?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://wiki.haskell.org/Monad_tutorials_timeline">Haha</a></p>
+</div>
+<div class="paragraph">
+<p>Yeah. I&#8217;m not adding to that list.
+Suffice it to say that monads are actually a pretty simple but abstract tool to model effects.</p>
+</div>
+<div class="paragraph">
+<p>I don&#8217;t want to replace monads, but I want a tool that fits the same bill.</p>
+</div>
+<div class="sect2">
+<h3 id="_my_definition_of_functional">My definition of functional.</h3>
+<div class="paragraph">
+<p>I&#8217;ve a pretty lax definition of functional code:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>state of meaningful part of application does not change</p>
+<div class="ulist">
+<ul>
+<li>
+<p>anything goes for debug state</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>functions that use random numbers</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Tests can use a predictable random number sequence to make testing easy.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>functions that read from the hard drive or write to new files</p>
+</li>
+<li>
+<p>functions that modify destructively internal state or call non-functional code as long as the interface is functional</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>We shall call it pseudo-functional.
+It still provides all of the benefits I like, but it isn&#8217;t "pure".</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_how_to_make_functions_pseudo_functional_using_dynamic_variables">How to make functions pseudo-functional using dynamic variables</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It&#8217;s <em>really</em> simple.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Have the functional interface function set up the dynamic context</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Within this context call as many non-functional functions which modify this context</p>
+</li>
+</ol>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s an example of updating a game state.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defvar</span> <span style="color: #19177C">*events*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>(<span style="color: #008000">defvar</span> <span style="color: #19177C">*drawings*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">state</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>  <span style="color: #19177C">player</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>  <span style="color: #19177C">enemies</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>  <span style="color: #408080; font-style: italic">;; Etc.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>  <span style="color: #19177C">drawings</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>  <span style="color: #19177C">events</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">update-state</span> (<span style="color: #19177C">state</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>  <span style="color: #408080; font-style: italic">;; Dynamic Context: *drawings*, *events*</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>  (<span style="color: #008000; font-weight: bold">let*</span> ((<span style="color: #19177C">*drawings*</span> (<span style="color: #19177C">fifo</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>         (<span style="color: #19177C">*events*</span> (<span style="color: #19177C">fifo</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>    (<span style="color: #19177C">make-state</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>     <span style="color: #408080; font-style: italic">;; update-player returns the updated player,</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>     <span style="color: #408080; font-style: italic">;; and pushes events to the *events* fifo and drawings to the *drawings* fifo</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>     <span style="color: #19177C">:player</span> (<span style="color: #19177C">update-player</span> (<span style="color: #19177C">state-player</span> <span style="color: #19177C">state</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span>     <span style="color: #408080; font-style: italic">;; Similarly update enemies</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">20 </span>     <span style="color: #19177C">:enemies</span> (<span style="color: #19177C">update-enemies</span> (<span style="color: #19177C">state-enemies</span> <span style="color: #19177C">state</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">21 </span>     <span style="color: #408080; font-style: italic">;; etc.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">22 </span>     <span style="color: #19177C">:drawings</span> <span style="color: #19177C">*drawings*</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">23 </span>     <span style="color: #19177C">:events</span> <span style="color: #19177C">*events*</span>)))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>From the perspective of <code>update-player</code>, <code>*drawings*</code> and <code>*events*</code> are both append only.
+They&#8217;ll use a function like <code>fifo-push!</code>.
+Outside of <code>update-state</code> nothing appears to be modified.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reflection">Reflection</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>you don&#8217;t get any automatic type-checking: you have to rely on convention and/or documentation</p>
+</li>
+<li>
+<p>you still have to be very careful about destructively modifying anything</p>
+</li>
+<li>
+<p>there&#8217;s no need to wire a lot of additional state through, or attach state to arbitrary structures</p>
+</li>
+<li>
+<p>no complicated multiple-value returns or structures: functions return one object</p>
+</li>
+<li>
+<p>because of the nature of dynamic variables, this approach is nest-able</p>
+<div class="ulist">
+<ul>
+<li>
+<p>For example <code>update-state</code> could be called from within <code>update-state</code> (not that you would want to)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>leaving variables undefined at the top level can help ensure that these non-functional functions (<code>update-player</code>, <code>update-enemies</code>)
+are only called from a dynamic context</p>
+</li>
+<li>
+<p>this is really just another way of understanding dynamic variables in the context of functional programming</p>
+</li>
+</ul>
+</div>
+</div>
+</div>

@@ -583,6 +583,13 @@ var e_portfolio_post_page = function() {
 
 var blog_entries = function() {
     return [
+	/*blog_entry(
+	    "Idea: Easy Functional Programming Using Dynamic Variables",
+	    'TODO',
+	    'Presents an idea of how to effortlessly incorporate monadic behavior in languages with dynamic variables.',
+	    e_html('./blog_posts/easy-monads-in-lisp.html')
+	),*/
+	
 	/*
 	blog_entry(
 	    "Etude: Event System",
