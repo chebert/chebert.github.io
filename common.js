@@ -36,7 +36,7 @@ var do_arr = function(arr, fEltAndIdx) {
 var do_obj = function(obj, fEltAndKey) {
     for (key in obj) {
 	if (obj.hasOwnProperty(key)) {
-	    if (fEltAndKey(key, obj[key]) === DO_END) return;
+	    if (fEltAndKey(obj[key], key) === DO_END) return;
 	}
     }
 }
@@ -503,7 +503,7 @@ var e_home_page = function() {
 	['Christopher Hebert\'s Blog. I discuss things like game programming, code architecture ideas, practicing, and other miscellany.']);
     var cards = e_card_list(blogEntries.map(e_blog_card));
 
-    return e_div([navbar, explanation, cards]);
+    return e_page_div([navbar, explanation, cards]);
 }
 
 // Organizes blog post
@@ -528,6 +528,10 @@ var e_portfolio_post_not_found = function(title) {
 		 '" could not be found.');
 }
 
+var e_page_div = function(html) {
+    var props = { style: 'margin: 2% 10%'};
+    return set_props(e_div(html), props);
+}
 
 // Generates the blog post page given the title
 var e_blog_post_page = function() {
@@ -536,9 +540,9 @@ var e_blog_post_page = function() {
     var navbar = e_navbar(title);
     var blogEntry = find_by_key(title, blogEntries, 'title');
     if (!blogEntry) {
-	return e_div([navbar, e_blog_post_not_found(title)]);
+	return e_page_div([navbar, e_blog_post_not_found(title)]);
     } else {
-	return e_div([navbar, e_blog_entry(blogEntry)]);
+	return e_page_div([navbar, e_blog_entry(blogEntry)]);
     }
 }
 
@@ -552,7 +556,7 @@ var e_portfolio_page = function() {
     var navbar = e_navbar('Portfolio');
     var cards = e_card_list(entries.map(e_portfolio_card));
 
-    return e_div([navbar, cards]);
+    return e_page_div([navbar, cards]);
 }
 
 
@@ -571,9 +575,9 @@ var e_portfolio_post_page = function() {
     var navbar = e_navbar(title);
     var entry = find_by_key(title, entries, 'title');
     if (!entry) {
-	return e_div([navbar, e_portfolio_post_not_found(title)]);
+	return e_page_div([navbar, e_portfolio_post_not_found(title)]);
     } else {
-	return e_div([navbar, e_portfolio_entry(entry)]);
+	return e_page_div([navbar, e_portfolio_entry(entry)]);
     }
 }
 
