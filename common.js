@@ -446,7 +446,9 @@ var navbar_nav_links = function() {
 
 // Creates a navbar with the given title
 var e_navbar = function(title) {
-    return e_nav(title, navbar_nav_links());
+    var links = navbar_nav_links();
+    links = links.filter(function(link) { return link[0] !== title; });
+    return e_nav(title, links);
 }
 
 // title, date, description: string
