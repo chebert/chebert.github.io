@@ -43,3 +43,40 @@ These waiting scripts can be kept separate from the active scripts.
 == What I came up with
 
 
+----
+
+(defun script-wait-for-event (event) (cons :wait event))
+(defun script-send-event (event) (cons :send event))
+
+(defstruct script-system
+  active-scripts
+  waiting-scripts)
+
+(defun update-script-system (script-system)
+  (let ((waiting (script-system-waiting-scripts script-system)))
+    (dolist (script (script-system-active-scripts script-system))
+      (loop for script2 on script do
+	   (let* ((stmt (first script 2))
+		  (type (car stmt))
+		  (event (cdr stmt)))
+	     (ecase type
+	       (:wait (push script2 waiting)
+		      (return))
+	       (:send (push-event! event))))))
+    (make-script-system :active-scripts () :waiting-scripts waiting)))
+
+(list
+ (script-send-event (event-say :otis "You gotta get me out of here."))
+ (script-send-event (event-look-back-and-forth :otis))
+ (script-wait-for-event (event-finished-talking :otis))
+
+ (script-send-event (event-say :otis "I'm a victim of society"))
+ (script-send-event (event-look-back-and-forth :otis))
+ (script-wait-for-event (event-finished-talking :otis))
+
+ (script-send-event (event-look-forward :otis))
+ (script-send-event (event-look-at-camera :guybrush))
+ (script-send-event (event-say :guybrush "Not to mention halitosis"))
+ (script-send-event (event-walk-to-stage-center :guybrush))
+ (script-wait-for-event (event-walk-to-stage-center :guybrush)))
+----
