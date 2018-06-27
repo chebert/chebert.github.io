@@ -1,0 +1,101 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_what_are_scripted_sequences">What are scripted sequences?</a></li>
+<li><a href="#_example">Example</a></li>
+<li><a href="#_what_i_need_from_a_scripted_sequence_system">What I need from a scripted sequence system</a>
+<ul class="sectlevel2">
+<li><a href="#_how_to_implement_waiting">How to implement waiting?</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="sect1">
+<h2 id="_what_are_scripted_sequences">What are scripted sequences?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Scripted sequences are very useful for telling stories and guiding interactions between entities.
+They are like theater scripts: they tell entities what to do and when to do it.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_example">Example</h2>
+<div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<img src="./blog_posts/scripted-sequences-etude/smi-otis.gif" alt="smi otis">
+</div>
+<div class="title">Figure 1. Secret of Monkey Island: from <a href="http://ohbabyitslucasarts.tumblr.com/post/87619859708/1hp-1mp-monkey-island-melee-island">ohbabyitslucasarts</a></div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Otis: says "You gotta get me outta here" while looking back and forth</p>
+</li>
+<li>
+<p>Otis: says "I&#8217;m a victim of society" while looking back and forth</p>
+</li>
+<li>
+<p>Guybrush: looks at camera</p>
+</li>
+<li>
+<p>Guybrush: says "Not to mention halitosis"</p>
+</li>
+<li>
+<p>Guybrush: walks to stage center</p>
+</li>
+<li>
+<p>Guybrush: says "Yuck!"</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_i_need_from_a_scripted_sequence_system">What I need from a scripted sequence system</h2>
+<div class="sectionbody">
+<div class="ulist">
+<div class="title">Scripted Sequences</div>
+<ul>
+<li>
+<p>scripted sequences can deliver messages/commands/events</p>
+</li>
+<li>
+<p>scripted sequences can wait for and receive events</p>
+<div class="ulist">
+<ul>
+<li>
+<p>when a character has finished talking or walking, they can send the next event</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<div class="title">Scripted Sequence System</div>
+<ul>
+<li>
+<p>the system should support adding and removing scripts</p>
+</li>
+<li>
+<p>the system should support multiple scripts at once</p>
+</li>
+<li>
+<p>the system should receive events and forward them to scripts</p>
+</li>
+<li>
+<p>the system should update all active scripts</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_how_to_implement_waiting">How to implement waiting?</h3>
+<div class="paragraph">
+<p>The only scripts that need to receive events are the ones that are waiting to receive events.
+These waiting scripts can be kept separate from the active scripts.</p>
+</div>
+</div>
+</div>
+</div>

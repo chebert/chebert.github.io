@@ -584,6 +584,13 @@ var e_portfolio_post_page = function() {
 var blog_entries = function() {
     return [
 	/*blog_entry(
+	    "Etude: A scripted sequence system.",
+	    'TODO',
+	    'A short study on creating a scripted sequence system -- built on an event system and state machines..',
+	    e_html('./blog_posts/scripted-sequences-etude.html')
+	),*/
+	
+	/*blog_entry(
 	    "Idea: Easy Functional Programming Using Dynamic Variables",
 	    'TODO',
 	    'Presents an idea of how to effortlessly incorporate monadic behavior in languages with dynamic variables.',

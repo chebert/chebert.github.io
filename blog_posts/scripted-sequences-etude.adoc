@@ -1,0 +1,45 @@
+:imagesdir: ./blog_posts/scripted-sequences-etude
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+== What are scripted sequences?
+
+Scripted sequences are very useful for telling stories and guiding interactions between entities.
+They are like theater scripts: they tell entities what to do and when to do it.
+
+== Example
+
+.Secret of Monkey Island: from http://ohbabyitslucasarts.tumblr.com/post/87619859708/1hp-1mp-monkey-island-melee-island[ohbabyitslucasarts]
+image::smi-otis.gif[]
+
+. Otis: says "You gotta get me outta here" while looking back and forth
+. Otis: says "I'm a victim of society" while looking back and forth
+. Guybrush: looks at camera
+. Guybrush: says "Not to mention halitosis"
+. Guybrush: walks to stage center
+. Guybrush: says "Yuck!"
+
+== What I need from a scripted sequence system
+
+.Scripted Sequences
+* scripted sequences can deliver messages/commands/events
+* scripted sequences can wait for and receive events
+** when a character has finished talking or walking, they can send the next event
+
+.Scripted Sequence System
+* the system should support adding and removing scripts
+* the system should support multiple scripts at once
+* the system should receive events and forward them to scripts
+* the system should update all active scripts
+
+=== How to implement waiting?
+
+The only scripts that need to receive events are the ones that are waiting to receive events.
+These waiting scripts can be kept separate from the active scripts.
+
+== What I came up with
+
+
