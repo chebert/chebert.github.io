@@ -605,7 +605,7 @@ var blog_entries = function() {
 	
 	blog_entry(
 	    "Etude: Event System",
-	    'TODO',
+	    '6/27/18',
 	    "A short study on event systems.",
 	    e_html('./blog_posts/event-system-etude.html')),
 
