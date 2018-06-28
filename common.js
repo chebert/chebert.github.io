@@ -604,11 +604,21 @@ var blog_entries = function() {
 	),*/
 
 	blog_entry(
+	    'Etude: Layer-Based Drawing',
+	    'TODO',
+	    'A Short study on creating Photoshop-sytle layers for a drawing system.',
+	    e_html('./blog_posts/layer-based-drawing-etude.html')
+	),
+	
+	/*blog_entry(
 	    "Etude: Timer System",
 	    'TODO',
 	    'A short study on creating a timer system, given an event system.',
 	    e_html('./blog_posts/timer-system-etude.html')
-	),
+	),*/
+
+
+
 	
 	blog_entry(
 	    "Etude: Event System",
