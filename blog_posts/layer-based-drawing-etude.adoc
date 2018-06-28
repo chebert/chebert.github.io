@@ -1,6 +1,0 @@
-:imagesdir: ./blog_posts/layer-based-drawing
-:source-highlighter: pygments
-:pygments-style: default
-:pygments-css: style
-:pygments-linenums-mode: inline
-:toc:
