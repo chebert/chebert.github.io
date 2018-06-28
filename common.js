@@ -448,7 +448,7 @@ var navbar_nav_links = function() {
 var e_navbar = function(title) {
     var links = navbar_nav_links();
     links = links.filter(function(link) { return link[0] !== title; });
-    return e_nav(title, links);
+    return set_props(e_nav(title, links), {style: 'text-transform: uppercase'});
 }
 
 // title, date, description: string
@@ -603,13 +603,11 @@ var blog_entries = function() {
 	    e_html('./blog_posts/easy-monads-in-lisp.html')
 	),*/
 	
-	/*
 	blog_entry(
 	    "Etude: Event System",
 	    'TODO',
 	    "A short study on event systems.",
 	    e_html('./blog_posts/event-system-etude.html')),
-	*/
 
 	blog_entry(
 	    "Etude: State Machine",

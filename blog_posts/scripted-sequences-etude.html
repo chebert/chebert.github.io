@@ -8,6 +8,7 @@
 <li><a href="#_how_to_implement_waiting">How to implement waiting?</a></li>
 </ul>
 </li>
+<li><a href="#_what_i_came_up_with">What I came up with</a></li>
 </ul>
 </div>
 <div class="sect1">
@@ -95,6 +96,49 @@ They are like theater scripts: they tell entities what to do and when to do it.<
 <div class="paragraph">
 <p>The only scripts that need to receive events are the ones that are waiting to receive events.
 These waiting scripts can be kept separate from the active scripts.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_i_came_up_with">What I came up with</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">script-wait-for-event</span> (<span style="color: #19177C">event</span>) (<span style="color: #008000">cons</span> <span style="color: #19177C">:wait</span> <span style="color: #19177C">event</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">script-send-event</span> (<span style="color: #19177C">event</span>) (<span style="color: #008000">cons</span> <span style="color: #19177C">:send</span> <span style="color: #19177C">event</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">script-system</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>  <span style="color: #19177C">active-scripts</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>  <span style="color: #19177C">waiting-scripts</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">update-script-system</span> (<span style="color: #19177C">script-system</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>  (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">waiting</span> (<span style="color: #19177C">script-system-waiting-scripts</span> <span style="color: #19177C">script-system</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>    (<span style="color: #008000">dolist</span> (<span style="color: #19177C">script</span> (<span style="color: #19177C">script-system-active-scripts</span> <span style="color: #19177C">script-system</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>      (<span style="color: #008000">loop</span> <span style="color: #19177C">for</span> <span style="color: #19177C">script2</span> <span style="color: #19177C">on</span> <span style="color: #19177C">script</span> <span style="color: #008000">do</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>           (<span style="color: #008000; font-weight: bold">let*</span> ((<span style="color: #19177C">stmt</span> (<span style="color: #008000">first</span> <span style="color: #19177C">script</span> <span style="color: #666666">2</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>                  (<span style="color: #008000; font-weight: bold">type</span> (<span style="color: #008000">car</span> <span style="color: #19177C">stmt</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>                  (<span style="color: #19177C">event</span> (<span style="color: #008000">cdr</span> <span style="color: #19177C">stmt</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>             (<span style="color: #008000">ecase</span> <span style="color: #008000; font-weight: bold">type</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>               (<span style="color: #19177C">:wait</span> (<span style="color: #008000">push</span> <span style="color: #19177C">script2</span> <span style="color: #19177C">waiting</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>                      (<span style="color: #008000">return</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>               (<span style="color: #19177C">:send</span> (<span style="color: #19177C">push-event!</span> <span style="color: #19177C">event</span>))))))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span>    (<span style="color: #19177C">make-script-system</span> <span style="color: #19177C">:active-scripts</span> () <span style="color: #19177C">:waiting-scripts</span> <span style="color: #19177C">waiting</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">20 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">21 </span>(<span style="color: #008000">list</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">22 </span> (<span style="color: #19177C">script-send-event</span> (<span style="color: #19177C">event-say</span> <span style="color: #19177C">:otis</span> <span style="color: #BA2121">&quot;You gotta get me out of here.&quot;</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">23 </span> (<span style="color: #19177C">script-send-event</span> (<span style="color: #19177C">event-look-back-and-forth</span> <span style="color: #19177C">:otis</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">24 </span> (<span style="color: #19177C">script-wait-for-event</span> (<span style="color: #19177C">event-finished-talking</span> <span style="color: #19177C">:otis</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">25 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">26 </span> (<span style="color: #19177C">script-send-event</span> (<span style="color: #19177C">event-say</span> <span style="color: #19177C">:otis</span> <span style="color: #BA2121">&quot;I&#39;m a victim of society&quot;</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">27 </span> (<span style="color: #19177C">script-send-event</span> (<span style="color: #19177C">event-look-back-and-forth</span> <span style="color: #19177C">:otis</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">28 </span> (<span style="color: #19177C">script-wait-for-event</span> (<span style="color: #19177C">event-finished-talking</span> <span style="color: #19177C">:otis</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">29 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">30 </span> (<span style="color: #19177C">script-send-event</span> (<span style="color: #19177C">event-look-forward</span> <span style="color: #19177C">:otis</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">31 </span> (<span style="color: #19177C">script-send-event</span> (<span style="color: #19177C">event-look-at-camera</span> <span style="color: #19177C">:guybrush</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">32 </span> (<span style="color: #19177C">script-send-event</span> (<span style="color: #19177C">event-say</span> <span style="color: #19177C">:guybrush</span> <span style="color: #BA2121">&quot;Not to mention halitosis&quot;</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">33 </span> (<span style="color: #19177C">script-send-event</span> (<span style="color: #19177C">event-walk-to-stage-center</span> <span style="color: #19177C">:guybrush</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">34 </span> (<span style="color: #19177C">script-wait-for-event</span> (<span style="color: #19177C">event-walk-to-stage-center</span> <span style="color: #19177C">:guybrush</span>)))</code></pre>
 </div>
 </div>
 </div>

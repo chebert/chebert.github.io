@@ -1,38 +1,26 @@
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_what_is_an_event_system">What is an Event System?</a>
+<li><a href="#_what_are_events">What are events?</a>
 <ul class="sectlevel2">
-<li><a href="#_scripting">Scripting</a></li>
+<li><a href="#_events_as_commands">Events as Commands</a></li>
 </ul>
 </li>
-<li><a href="#_events">Events</a></li>
+<li><a href="#_event_implementation">Event Implementation</a></li>
 <li><a href="#_event_handling">Event Handling</a></li>
-<li><a href="#_event_queue">Event Queue</a></li>
+<li><a href="#_event_queue">Event Queue</a>
+<ul class="sectlevel2">
+<li><a href="#_events_from_event_handlers">Events from Event Handlers</a></li>
+</ul>
+</li>
 <li><a href="#_reflections">Reflections</a></li>
 </ul>
 </div>
 <div class="sect1">
-<h2 id="_what_is_an_event_system">What is an Event System?</h2>
+<h2 id="_what_are_events">What are events?</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>An event system is a means of communication between various objects, entities, or other systems.
-An "event" or a "message" is a record of something that happened that then gets to delivered to the appropriate entities.
-Entities can then handle the event by</p>
-</div>
-<div class="ulist">
-<div class="title">Entity reactions to events</div>
-<ul>
-<li>
-<p>making changes to themselves</p>
-</li>
-<li>
-<p>making changes to the environment</p>
-</li>
-<li>
-<p>causing other events to transpire</p>
-</li>
-</ul>
+<p>Events are happenings, state changes, that are recorded and delivered to interested entities.</p>
 </div>
 <div class="ulist">
 <div class="title">Example events/who they are delivered to</div>
@@ -79,90 +67,17 @@ Entities can then handle the event by</p>
 </ul>
 </div>
 </li>
+<li>
+<p>any event</p>
+<div class="ulist">
+<ul>
+<li>
+<p>the logging/debugging system</p>
+</li>
 </ul>
 </div>
-<div class="paragraph">
-<p>In addition to delivering messages to players, events can be delivered to logging systems to aid in debugging.</p>
-</div>
-<div class="sect2">
-<h3 id="_scripting">Scripting</h3>
-<div class="paragraph">
-<p>One important use of events is in scripting.
-Scripts can be written to generate and respond to events at appropriate times.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_events">Events</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>In order to make events easy for entities to handle, they often have a type tag.
-Events also usually carry some extra data with them, depending on the type.</p>
-</div>
-<div class="paragraph">
-<p>In Lisp we can do something really simple, just using <code>defstruct</code> and <code>typecase</code>:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">event-quit</span>) <span style="color: #408080; font-style: italic">; example of event with no data</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">event-bullet-collision</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>  <span style="color: #19177C">entity</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>  <span style="color: #19177C">bullet</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">event-button-press</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>  <span style="color: #19177C">button</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">player-handle-event</span> (<span style="color: #19177C">player</span> <span style="color: #19177C">event</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>  (<span style="color: #008000">typecase</span> <span style="color: #19177C">event</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>    (<span style="color: #19177C">event-bullet-collision</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>     (<span style="color: #008000">when</span> (<span style="color: #008000">eql</span> (<span style="color: #19177C">event-bullet-collision-entity</span> <span style="color: #19177C">event</span>) <span style="color: #19177C">player</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>       <span style="color: #408080; font-style: italic">;; take damage</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>       ))
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>    (<span style="color: #19177C">event-button-press</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>     (<span style="color: #008000">when</span> (<span style="color: #008000">eql</span> (<span style="color: #19177C">event-button-press-button</span> <span style="color: #19177C">event</span>) <span style="color: #19177C">:fire</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>       <span style="color: #408080; font-style: italic">;; fire bullet</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>       ))))</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_event_handling">Event Handling</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>We have at least two options for event handling:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Send all events to all entities, regardless of whether the entity is interested</p>
 </li>
-<li>
-<p>Send events only to those entities which are interested in the event</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>The first is the simpler implementation, but can result in a lot of time sending events to entities that are just going to ignore them.</p>
-</div>
-<div class="paragraph">
-<p>The second is more complicated, and involves each entity somehow subscribing &amp; unsubscribing for certain types of events.</p>
-</div>
-<div class="paragraph">
-<p>Implementing the simpler of the two results in a single <code>handle-event</code> function which forwards the event to all entities:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">handle-event</span> (<span style="color: #19177C">event</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>  (<span style="color: #19177C">sound-system-handle-event</span> <span style="color: #19177C">event</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>  (<span style="color: #19177C">log-system-handle-event</span> <span style="color: #19177C">event</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>  (<span style="color: #19177C">player-handle-event</span> <span style="color: #19177C">*player*</span> <span style="color: #19177C">event</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>  (<span style="color: #008000">loop</span> <span style="color: #19177C">for</span> <span style="color: #19177C">enemy</span> <span style="color: #19177C">in</span> <span style="color: #19177C">*enemies*</span> <span style="color: #008000">do</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span>       (<span style="color: #19177C">enemy-handle-event</span> <span style="color: #19177C">enemy</span> <span style="color: #19177C">event</span>))
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">7 </span>  (<span style="color: #008000">loop</span> <span style="color: #19177C">for</span> <span style="color: #19177C">object</span> <span style="color: #19177C">in</span> <span style="color: #19177C">*objects*</span> <span style="color: #008000">do</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">8 </span>       (<span style="color: #19177C">object-handle-event</span> <span style="color: #19177C">object</span> <span style="color: #19177C">event</span>)))</code></pre>
-</div>
+</ul>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -171,10 +86,99 @@ Events also usually carry some extra data with them, depending on the type.</p>
 <div class="title">Note</div>
 </td>
 <td class="content">
-Obviously, <code>handle-event</code> needs to be tailored to how your entities are organized.
+In addition to delivering messages to entities, events can be delivered to subsystems.
 </td>
 </tr>
 </table>
+</div>
+<div class="sect2">
+<h3 id="_events_as_commands">Events as Commands</h3>
+<div class="paragraph">
+<p>Events can also act as commands:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a command to a character tells them to jump or say a line of text</p>
+</li>
+<li>
+<p>a command to a sound system, to play a sound effect</p>
+</li>
+<li>
+<p>a command to a music system, to pause the music</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_event_implementation">Event Implementation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Events need to record what happened: it&#8217;s type, and the details of what happened: it&#8217;s data.</p>
+</div>
+<div class="paragraph">
+<p>In Lisp we can do something really simple, using <code>defstruct</code>:</p>
+</div>
+<div class="listingblock">
+<div class="title">Some example event structures.</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">event-quit</span>) <span style="color: #408080; font-style: italic">; example of event with no data</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">event-bullet-collision</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>  <span style="color: #19177C">entity</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>  <span style="color: #19177C">bullet</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">event-button-press</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">7 </span>  <span style="color: #19177C">button</span>)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_event_handling">Event Handling</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A dead-simple implementation of event-handling is to forward each and every event to all entities.
+Let each entity decide which events to respond to and how to respond to them.
+Supposing we have:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a list of all entities and subsystems, <code>*entities*</code>,</p>
+</li>
+<li>
+<p>a method <code>(entity-handle-event entity event)</code> implemented by each entity/subsystem</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Example of how <code>handle-event</code> could be implemented.</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">handle-event</span> (<span style="color: #19177C">event</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>  (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">*entities*</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>        (<span style="color: #008000">mapcar</span> (<span style="color: #008000; font-weight: bold">lambda</span> (<span style="color: #19177C">entity</span>) (<span style="color: #19177C">entity-handle-event</span> <span style="color: #19177C">entity</span> <span style="color: #19177C">event</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>                <span style="color: #19177C">*entities*</span>)))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For the event handling methods, We can dispatch on the event type using <code>typecase</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example of how entity-handle-event could be implemented for a player entity.</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defmethod</span> <span style="color: #19177C">entity-handle-event</span> ((<span style="color: #19177C">player</span> <span style="color: #19177C">player</span>) <span style="color: #19177C">event</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  (<span style="color: #008000">typecase</span> <span style="color: #19177C">event</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>    (<span style="color: #19177C">event-bullet-collision</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>     (<span style="color: #008000">when</span> (<span style="color: #008000">eql</span> (<span style="color: #19177C">event-bullet-collision-entity</span> <span style="color: #19177C">event</span>) <span style="color: #19177C">player</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>       <span style="color: #408080; font-style: italic">;; take damage</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>       ))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>    (<span style="color: #19177C">event-button-press</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>     (<span style="color: #008000">when</span> (<span style="color: #008000">eql</span> (<span style="color: #19177C">event-button-press-button</span> <span style="color: #19177C">event</span>) <span style="color: #19177C">:fire</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>       <span style="color: #408080; font-style: italic">;; fire bullet</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>       ))))</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -183,35 +187,56 @@ Obviously, <code>handle-event</code> needs to be tailored to how your entities a
 <div class="sectionbody">
 <div class="paragraph">
 <p>Systems and entities need some way of <em>actually creating the events</em>.
-Usually you want the events to be sent in the order that they occur.
-If that&#8217;s the case, your event queue can just be a FIFO.</p>
+Typically you want the events to be delivered in the order that they occur.
+This keeps things chronologically consistent.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defvar</span> <span style="color: #19177C">*events*</span>) <span style="color: #408080; font-style: italic">; Don&#39;t forget to initialize this</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">handle-events</span> ()
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>  <span style="color: #408080; font-style: italic">;; fifo-&gt;list, returns the elements of fifo as a list</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>  (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">events</span> (<span style="color: #19177C">fifo-&gt;list</span> <span style="color: #19177C">*events*</span>)))
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span>    <span style="color: #408080; font-style: italic">;; fifo, creates a new, empty fifo</span>
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">7 </span>    (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">*events*</span> (<span style="color: #19177C">fifo</span>))
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">8 </span>    (<span style="color: #008000">dolist</span> (<span style="color: #19177C">event</span> <span style="color: #19177C">events</span>)
-<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">9 </span>      (<span style="color: #19177C">handle-event</span> <span style="color: #19177C">event</span>))))</code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defvar</span> <span style="color: #19177C">*events*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">event-push!</span> (<span style="color: #19177C">event</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>  (<span style="color: #008000">push</span> <span style="color: #19177C">event</span> <span style="color: #19177C">*events*</span>))</code></pre>
 </div>
 </div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Important</div>
-</td>
-<td class="content">
-If your event handlers generate more events, it&#8217;s critical that you handle your events in batches.
-That&#8217;s why I pull all the events out and create a new event queue before processing them.
-Otherwise you may end up in an infinite cycle.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>I&#8217;ve chosen to implement the event queue as a stack.
+We can remove all of the events at once, and reverse them.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">deliver-events!</span> ()
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>  <span style="color: #408080; font-style: italic">;; Handle the events in the order they were pushed</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>  (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">events</span> (<span style="color: #008000">reverse</span> <span style="color: #19177C">*events*</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>    <span style="color: #408080; font-style: italic">;; Clear/save the old list of events before handling them</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>    <span style="color: #408080; font-style: italic">;; in case handle-event creates new events.</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span>    (<span style="color: #008000; font-weight: bold">setq</span> <span style="color: #19177C">*events*</span> ())
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">7 </span>    (<span style="color: #008000">dolist</span> (<span style="color: #19177C">event</span> <span style="color: #19177C">events</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">8 </span>      (<span style="color: #19177C">handle-event</span> <span style="color: #19177C">event</span>))))</code></pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_events_from_event_handlers">Events from Event Handlers</h3>
+<div class="paragraph">
+<p><code>deliver-events!</code> doesn&#8217;t deliver events being added from event handlers, only what was already on the event queue.
+It would be very useful to handle new events as we get them.</p>
+</div>
+<div class="listingblock">
+<div class="title">Keep calling <code>deliver-events!</code> until the event-handlers stop adding new events.</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">handle-events</span> ()
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>  (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">num-iterations</span> <span style="color: #666666">0</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>    (<span style="color: #008000">loop</span> <span style="color: #19177C">until</span> (<span style="color: #008000">or</span> (<span style="color: #008000">null</span> <span style="color: #19177C">*events*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>                    (<span style="color: #008000">&gt;</span> <span style="color: #19177C">num-iterations</span> <span style="color: #666666">10</span>)) <span style="color: #008000">do</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>         (<span style="color: #19177C">deliver-events!</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span>         (<span style="color: #008000">incf</span> <span style="color: #19177C">num-iterations</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">7 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">8 </span>    (<span style="color: #008000">when</span> (<span style="color: #008000">&gt;</span> <span style="color: #19177C">num-iterations</span> <span style="color: #666666">10</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">9 </span>      (<span style="color: #008000">warn</span> <span style="color: #BA2121">&quot;handle-events: too many back-and-forth events: ~A&quot;</span> <span style="color: #19177C">*events*</span>))))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I cap the number of times we call <code>deliver-events!</code> to avoid infinite cycles.
+I consider it an at-best sub-par implementation in the event-handling code, so I throw a warning.</p>
+</div>
 </div>
 </div>
 </div>

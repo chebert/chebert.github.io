@@ -5,16 +5,9 @@
 :pygments-linenums-mode: inline
 :toc:
 
-== What is an Event System?
+== What are events?
 
-An event system is a means of communication between various objects, entities, or other systems.
-An "event" or a "message" is a record of something that happened that then gets to delivered to the appropriate entities.
-Entities can then handle the event by
-
-.Entity reactions to events
-* making changes to themselves
-* making changes to the environment
-* causing other events to transpire
+Events are happenings, state changes, that are recorded and delivered to interested entities.
 
 .Example events/who they are delivered to
 * a collision between an enemy and a bullet occurs
@@ -27,20 +20,26 @@ Entities can then handle the event by
 ** player - the player's air meter starts depleting
 * the fire button is pressed
 ** player/gun - the gun fires a bullet
+* any event
+** the logging/debugging system
 
-In addition to delivering messages to players, events can be delivered to logging systems to aid in debugging.
+NOTE: In addition to delivering messages to entities, events can be delivered to subsystems.
 
-=== Scripting
-One important use of events is in scripting.
-Scripts can be written to generate and respond to events at appropriate times.
+=== Events as Commands
 
-== Events
+Events can also act as commands:
 
-In order to make events easy for entities to handle, they often have a type tag.
-Events also usually carry some extra data with them, depending on the type.
+* a command to a character tells them to jump or say a line of text
+* a command to a sound system, to play a sound effect
+* a command to a music system, to pause the music
 
-In Lisp we can do something really simple, just using `defstruct` and `typecase`:
+== Event Implementation
 
+Events need to record what happened: it's type, and the details of what happened: it's data.
+
+In Lisp we can do something really simple, using `defstruct`:
+
+.Some example event structures.
 [source,lisp,linenums]
 ----
 (defstruct event-quit) ; example of event with no data
@@ -50,8 +49,33 @@ In Lisp we can do something really simple, just using `defstruct` and `typecase`
   bullet)
 (defstruct event-button-press
   button)
+----
 
-(defun player-handle-event (player event)
+== Event Handling
+
+A dead-simple implementation of event-handling is to forward each and every event to all entities.
+Let each entity decide which events to respond to and how to respond to them.
+Supposing we have:
+
+* a list of all entities and subsystems, `\*entities*`, 
+* a method `(entity-handle-event entity event)` implemented by each entity/subsystem
+
+
+.Example of how `handle-event` could be implemented.
+[source,lisp,linenums]
+----
+(defun handle-event (event)
+  (setq *entities*
+        (mapcar (lambda (entity) (entity-handle-event entity event))
+                *entities*)))
+----
+
+For the event handling methods, We can dispatch on the event type using `typecase`.
+
+.Example of how entity-handle-event could be implemented for a player entity.
+[source,lisp,linenums]
+----
+(defmethod entity-handle-event ((player player) event)
   (typecase event
     (event-bullet-collision
      (when (eql (event-bullet-collision-entity event) player)
@@ -63,59 +87,59 @@ In Lisp we can do something really simple, just using `defstruct` and `typecase`
        ))))
 ----
 
-== Event Handling
-
-We have at least two options for event handling:
-
-. Send all events to all entities, regardless of whether the entity is interested
-. Send events only to those entities which are interested in the event
-
-The first is the simpler implementation, but can result in a lot of time sending events to entities that are just going to ignore them.
-
-The second is more complicated, and involves each entity somehow subscribing & unsubscribing for certain types of events.
-
-Implementing the simpler of the two results in a single `handle-event` function which forwards the event to all entities:
-
-[source,lisp,linenums]
-----
-(defun handle-event (event)
-  (sound-system-handle-event event)
-  (log-system-handle-event event)
-  (player-handle-event *player* event)
-  (loop for enemy in *enemies* do
-       (enemy-handle-event enemy event))
-  (loop for object in *objects* do
-       (object-handle-event object event)))
-----
-
-NOTE: Obviously, `handle-event` needs to be tailored to how your entities are organized.
-
 == Event Queue
 
 Systems and entities need some way of _actually creating the events_.
-Usually you want the events to be sent in the order that they occur.
-If that's the case, your event queue can just be a FIFO.
+Typically you want the events to be delivered in the order that they occur.
+This keeps things chronologically consistent.
 
 [source,lisp,linenums]
 ----
-(defvar *events*) ; Don't forget to initialize this
+(defvar *events*)
+(defun event-push! (event)
+  (push event *events*))
+----
 
-(defun handle-events ()
-  ;; fifo->list, returns the elements of fifo as a list
-  (let ((events (fifo->list *events*)))
-    ;; fifo, creates a new, empty fifo
-    (setq *events* (fifo))
+I've chosen to implement the event queue as a stack.
+We can remove all of the events at once, and reverse them.
+
+[source,lisp,linenums]
+----
+(defun deliver-events! ()
+  ;; Handle the events in the order they were pushed
+  (let ((events (reverse *events*)))
+    ;; Clear/save the old list of events before handling them
+    ;; in case handle-event creates new events.
+    (setq *events* ())
     (dolist (event events)
       (handle-event event))))
 ----
 
+=== Events from Event Handlers
 
-IMPORTANT: If your event handlers generate more events, it's critical that you handle your events in batches.
-That's why I pull all the events out and create a new event queue before processing them.
-Otherwise you may end up in an infinite cycle.
+`deliver-events!` doesn't deliver events being added from event handlers, only what was already on the event queue.
+It would be very useful to handle new events as we get them.
+
+.Keep calling `deliver-events!` until the event-handlers stop adding new events.
+[source,lisp,linenums]
+----
+(defun handle-events ()
+  (let ((num-iterations 0))
+    (loop until (or (null *events*)
+                    (> num-iterations 10)) do
+         (deliver-events!)
+         (incf num-iterations))
+
+    (when (> num-iterations 10)
+      (warn "handle-events: too many back-and-forth events: ~A" *events*))))
+----
+
+I cap the number of times we call `deliver-events!` to avoid infinite cycles.
+I consider it an at-best sub-par implementation in the event-handling code, so I throw a warning.
 
 == Reflections
 
+* Entities can also subscribe to certain types of events, making event-handling for large numbers of events more efficient.
 * Making event handlers functional is just a matter of setting up parameters properly.
 I'll talk about this in a future post.
 * Events could have priority - for example quit event takes priority over everything.
