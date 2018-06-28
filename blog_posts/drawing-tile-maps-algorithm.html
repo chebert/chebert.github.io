@@ -1,0 +1,127 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_tile_maps">Tile Maps</a>
+<ul class="sectlevel2">
+<li><a href="#_how_individual_tiles_are_drawn">How Individual tiles are drawn</a></li>
+<li><a href="#_how_a_tile_map_is_drawn_naïve">How a tile map is drawn (naïve)</a></li>
+<li><a href="#_solution">Solution</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="sect1">
+<h2 id="_tile_maps">Tile Maps</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>2D games often use tile maps as part of the background.
+Tiles are small (e.g. 32 pixels x 32 pixels) 2d rectangles that are backed by a sprite.
+Tiles are loaded as a grid in a single image: a <em>tilesheet</em>.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./blog_posts/drawing-tile-maps-algorithm/pokemon.png" alt="pokemon">
+</div>
+<div class="title">Figure 1. Portion of Tilesheet for Pokemon Emerald. From <a href="https://www.spriters-resource.com/fullview/61816/">The Spriters Resource</a></div>
+</div>
+<div class="sect2">
+<h3 id="_how_individual_tiles_are_drawn">How Individual tiles are drawn</h3>
+<div class="paragraph">
+<p>Tiles are drawn by drawing a tile-sized portion of the tilesheet onto the window screen.
+In SDL:</p>
+</div>
+<div class="listingblock">
+<div class="title">Drawing a tile in SDL</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="c"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span><span style="color: #BC7A00">#define TILE_SIZE 16</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span><span style="color: #B00040">void</span> <span style="color: #0000FF">draw_tile</span>(SDL_Renderer<span style="color: #666666">*</span> renderer, SDL_Texture<span style="color: #666666">*</span> tile_sheet,
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>               <span style="color: #B00040">int</span> tile_x, <span style="color: #B00040">int</span> tile_y,
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>               <span style="color: #B00040">int</span> window_pos_x, <span style="color: #B00040">int</span> window_pos_y) {
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>     SDL_Rect src, dest;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>     src.x <span style="color: #666666">=</span> tile_x <span style="color: #666666">*</span> TILE_SIZE;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>     src.y <span style="color: #666666">=</span> tile_y <span style="color: #666666">*</span> TILE_SIZE;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>     dest.x <span style="color: #666666">=</span> window_pos_x;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>     dest.y <span style="color: #666666">=</span> window_pos_y;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>     src.w <span style="color: #666666">=</span> src.h <span style="color: #666666">=</span> dest.w <span style="color: #666666">=</span> dest.h <span style="color: #666666">=</span> TILE_SIZE;
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>     SDL_RenderCopy(renderer, tex, <span style="color: #666666">&amp;</span>src, <span style="color: #666666">&amp;</span>dest);
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>tile_x</code> and <code>tile_y</code> refer to the zero-based grid positions.
+This code assumes square tiles of fixed size <code>TILE_SIZE</code>.</p>
+</div>
+<div class="paragraph">
+<p>An example call of this algorithm, draws a bush to a black screen:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="c"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>draw_tile(renderer, tile_sheet, <span style="color: #666666">6</span>, <span style="color: #666666">1</span>, <span style="color: #666666">50</span>, <span style="color: #666666">100</span>);</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Results in:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./blog_posts/drawing-tile-maps-algorithm/tile-drawn-on-screen.png" alt="tile drawn on screen">
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_how_a_tile_map_is_drawn_naïve">How a tile map is drawn (naïve)</h3>
+<div class="paragraph">
+<p>An in game tile map is represented as a grid of tile coordinates (and other tile data).
+Given a 2d grid of &lt;tile_x, tile_y&gt; coordinates.</p>
+</div>
+<div class="olist arabic">
+<div class="title">Naïve Algorithm</div>
+<ol class="arabic">
+<li>
+<p>Determine window size and camera position</p>
+</li>
+<li>
+<p>Clear the screen</p>
+</li>
+<li>
+<p>Render only those tiles which are determined to be on screen</p>
+</li>
+<li>
+<p>Render all sprites</p>
+</li>
+</ol>
+</div>
+<div class="sect3">
+<h4 id="_source_of_slowdown">Source of Slowdown</h4>
+<div class="paragraph">
+<p>If you have a large screen size full of tiles, say 100 tiles x 100 tiles, drawing a full tile map would result in about <strong>10000 draw calls per frame</strong>.
+The problem is compounded if you are calling out to C code from another language.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+This is not premature optimization.
+This constant redrawing can end up taking more than 17ms (a full frame at 60 FPS) resulting in noticeable stuttering.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution">Solution</h3>
+<div class="paragraph">
+<p>The main idea is to reduce the number of draw calls by only redrawing tiles when necessary.</p>
+</div>
+<div class="paragraph">
+<p>The solution is to use a background tile map texture as a render target.
+Tiles are only drawn in initialization, and when the camera has scrolled far enough to add new tiles.
+If the camera moves slower than one tile per frame, the number for our large screen becomes <strong>at most 100 draw calls per frame</strong>.</p>
+</div>
+</div>
+</div>
+</div>

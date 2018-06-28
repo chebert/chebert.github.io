@@ -589,6 +589,13 @@ var e_portfolio_post_page = function() {
 
 var blog_entries = function() {
     return [
+	blog_entry(
+	    "Algorithm: Drawing Scrolling Tile Maps",
+	    'TODO',
+	    'Presents an algorithm for drawing static or mostly static tile maps that scroll in the background. Based on how the GameBoy\'s tile map works.',
+	    e_html('./blog_posts/drawing-tile-maps-algorithm.html')
+	),
+	
 	/*blog_entry(
 	    "Etude: A scripted sequence system.",
 	    'TODO',
@@ -603,12 +610,12 @@ var blog_entries = function() {
 	    e_html('./blog_posts/easy-monads-in-lisp.html')
 	),*/
 
-	blog_entry(
+	/*blog_entry(
 	    "Etude: Timer System",
 	    'TODO',
 	    'A short study on creating a timer system, given an event system.',
 	    e_html('./blog_posts/timer-system-etude.html')
-	),
+	),*/
 	
 	blog_entry(
 	    "Etude: Event System",

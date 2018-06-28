@@ -1,0 +1,101 @@
+:imagesdir: ./blog_posts/drawing-tile-maps-algorithm
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+== Tile Maps
+
+2D games often use tile maps as part of the background.
+Tiles are small (e.g. 32 pixels x 32 pixels) 2d rectangles that are backed by a sprite.
+Tiles are loaded as a grid in a single image: a _tilesheet_.
+
+.Portion of Tilesheet for Pokemon Emerald. From https://www.spriters-resource.com/fullview/61816/[The Spriters Resource]
+image::pokemon.png[]
+
+=== How Individual tiles are drawn
+
+Tiles are drawn by drawing a tile-sized portion of the tilesheet onto the window screen.
+In SDL:
+
+.Drawing a tile in SDL
+[source,c,linenums]
+----
+#define TILE_SIZE 16
+void draw_tile(SDL_Renderer* renderer, SDL_Texture* tile_sheet,
+               int tile_x, int tile_y,
+               int window_pos_x, int window_pos_y) {
+     SDL_Rect src, dest;
+     src.x = tile_x * TILE_SIZE;
+     src.y = tile_y * TILE_SIZE;
+     dest.x = window_pos_x;
+     dest.y = window_pos_y;
+     src.w = src.h = dest.w = dest.h = TILE_SIZE;
+     SDL_RenderCopy(renderer, tex, &src, &dest);
+}
+----
+
+`tile_x` and `tile_y` refer to the zero-based grid positions.
+This code assumes square tiles of fixed size `TILE_SIZE`.
+
+An example call of this algorithm, draws a bush to a black screen:
+
+[source,c,linenums]
+----
+draw_tile(renderer, tile_sheet, 6, 1, 50, 100);
+----
+
+Results in:
+
+image::tile-drawn-on-screen.png[]
+
+=== How a tile map is drawn (naïve)
+
+An in game tile map is represented as a grid of tile coordinates (and other tile data).
+Given a 2d grid of <tile_x, tile_y> coordinates.
+
+.Naïve Algorithm
+. Determine window size and camera position
+. Clear the screen
+. Render only those tiles which are determined to be on screen
+. Render all sprites
+
+==== Source of Slowdown
+
+If you have a large screen size full of tiles, say 100 tiles x 100 tiles, drawing a full tile map would result in about *10000 draw calls per frame*.
+The problem is compounded if you are calling out to C code from another language.
+If you are using a garbage collected language, and are not careful with your allocations, the problem intensifies.
+
+NOTE: This is not premature optimization.
+This constant redrawing can end up taking more than 17ms (a full frame at 60 FPS) resulting in noticeable stuttering.
+
+=== Solution
+
+The main idea is to reduce the number of draw calls by only redrawing tiles when necessary.
+
+.The ideal
+All 10000 tiles are only drawn in initialization.
+When the camera has scrolled far enough to add new tiles, only the new tiles would be drawn.
+If the camera moves slower than one tile per frame, the number for our large screen becomes *at most 100 draw calls per frame*.
+
+To accomplish this, we can create a texture as a render target.
+The texture should be the size of the screen plus a tile-sized "ring".
+
+.Updated Algorithm
+* The initial background tiles are drawn to the render target
+** include a ring of "unseen" tiles
+* Render the background as repeating
+** this can take 1 to 4 draw calls
+* Whenever the camera moves, draw new tiles if they need to be drawn
+
+This results in at least 1 draw call and at most 100 tile + 4 background draw calls per frame.
+
+TODO: image of background with ring. image of repeated background
+
+== Reflection
+
+* this technique could be used for flipping between multiple tile maps quickly (if many tiles are animated)
+* to have empty tiles, you can have a transparent channel or key color
+** to destroy tiles, you can draw over the old tiles with the key color
+* the GameBoy uses a buffer like this
