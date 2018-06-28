@@ -602,6 +602,13 @@ var blog_entries = function() {
 	    'Presents an idea of how to effortlessly incorporate monadic behavior in languages with dynamic variables.',
 	    e_html('./blog_posts/easy-monads-in-lisp.html')
 	),*/
+
+	blog_entry(
+	    "Etude: Timer System",
+	    'TODO',
+	    'A short study on creating a timer system, given an event system.',
+	    e_html('./blog_posts/timer-system-etude.html')
+	),
 	
 	blog_entry(
 	    "Etude: Event System",

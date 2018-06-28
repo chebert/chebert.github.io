@@ -1,0 +1,179 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_why_would_we_want_a_timer_system">Why would we want a timer system?</a>
+<ul class="sectlevel2">
+<li><a href="#_what_do_i_want_from_a_timer_system">What do I want from a timer system?</a></li>
+</ul>
+</li>
+<li><a href="#_an_event_based_implementation">An Event-based Implementation</a></li>
+<li><a href="#_a_trivial_example">A trivial example</a></li>
+<li><a href="#_reflection">Reflection</a></li>
+</ul>
+</div>
+<div class="sect1">
+<h2 id="_why_would_we_want_a_timer_system">Why would we want a timer system?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><span class="image" style="float: right"><img src="./blog_posts/timer-system-etude/hourglass.png" alt="hourglass" width="25%"></span></p>
+</div>
+<div class="paragraph">
+<p>Timers are countdowns: counting down from a given amount of time and issuing an alarm when the time has elapsed.
+Timer systems synchronize entities.
+The logic behind timers is simple, but can easily clutter up the logic of an entities behavior and their state.
+Putting this logic in a timer system does a lot to decrease complexity of entities.</p>
+</div>
+<div class="sect2">
+<h3 id="_what_do_i_want_from_a_timer_system">What do I want from a timer system?</h3>
+<div class="ulist">
+<div class="title">Without a timer system:</div>
+<ul>
+<li>
+<p>An entity starts keeping track of time elapsed when it wants to start a timer</p>
+</li>
+<li>
+<p>The entity continually checks to see if elapsed time exceeds a specified time</p>
+</li>
+<li>
+<p>When the time has elapsed, the entity changes its behavior and stops keeping track of time</p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<div class="title">With a timer system:</div>
+<ul>
+<li>
+<p>An entity adds a timer to the timer system, saying it wants to change behavior in a certain amount of time</p>
+</li>
+<li>
+<p>The timer system sends a message to the entity, when the time has elapsed</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>With a timer system, the entity does not keep track of elapsed time, and does not continually check for time elapsed.
+This makes adding timers trivial and fluid.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_an_event_based_implementation">An Event-based Implementation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Assuming an event queue with <code>(event-push! event)</code> defined:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defvar</span> <span style="color: #19177C">*countdowns*</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">countdown-push!</span> (<span style="color: #19177C">countdown</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>  (<span style="color: #008000">push</span> <span style="color: #19177C">*countdowns*</span> <span style="color: #19177C">countdown</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">4 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">5 </span>(<span style="color: #008000">defstruct</span> <span style="color: #19177C">countdown</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">6 </span>  <span style="color: #19177C">remaining-ticks</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">7 </span>  <span style="color: #19177C">event</span>)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Entities can specify the message/event they want to have delivered with the <code>event</code> field of the <code>countdown</code> structure.</p>
+</div>
+<div class="paragraph">
+<p>Here <code>*countdowns*</code> is a stack, treated like a FIFO.
+Timers are updated in reverse order for chronological consistency:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">update-countdowns</span> (<span style="color: #19177C">countdowns</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  <span style="color: #408080; font-style: italic">;; Save still-active countdowns into new-countdowns</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>  (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">new-countdowns</span> ()))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>    <span style="color: #408080; font-style: italic">;; Iterate over all countdowns</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>    (<span style="color: #008000">dolist</span> (<span style="color: #19177C">countdown</span> (<span style="color: #008000">reverse</span> <span style="color: #19177C">countdowns</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>      <span style="color: #408080; font-style: italic">;; Time elapses...</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>      (<span style="color: #008000; font-weight: bold">let</span> ((<span style="color: #19177C">remaining-ticks</span> (<span style="color: #008000">-</span> (<span style="color: #19177C">countdown-remaining-ticks</span> <span style="color: #19177C">countdown</span>) <span style="color: #666666">1</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>            (<span style="color: #19177C">event</span> (<span style="color: #19177C">countdown-event</span> <span style="color: #19177C">countdown</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>        <span style="color: #408080; font-style: italic">;; has the countdown expired?</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>        (<span style="color: #008000; font-weight: bold">if</span> (<span style="color: #008000">zerop</span> <span style="color: #19177C">remaining-ticks</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>            <span style="color: #408080; font-style: italic">;; if the countdown expired, push the event and</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>            <span style="color: #408080; font-style: italic">;; remove the countdown from the list</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>            (<span style="color: #19177C">event-push!</span> <span style="color: #19177C">event</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>            <span style="color: #408080; font-style: italic">;; if the countdown is still active, update the old countdown and</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>            <span style="color: #408080; font-style: italic">;; keep it on the list</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>            (<span style="color: #008000">push</span> (<span style="color: #19177C">make-countdown</span> <span style="color: #19177C">:remaining-ticks</span> <span style="color: #19177C">remaining-ticks</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>                                  <span style="color: #19177C">:event</span> <span style="color: #19177C">event</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>                  <span style="color: #19177C">new-countdowns</span>))))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span>    (<span style="color: #008000">nreverse</span> <span style="color: #19177C">new-countdowns</span>)))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Remaining ticks is decremented by 1 each update; timers are synced with the update cycle.
+When the timer expires, the event is added to the event queue and removed from the timer system.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_a_trivial_example">A trivial example</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Suppose we have a piano-playing entity:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 1 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">piano-player-update</span> (<span style="color: #19177C">player</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 2 </span>  (<span style="color: #008000">case</span> (<span style="color: #19177C">piano-player-state</span> <span style="color: #19177C">player</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 3 </span>    (<span style="color: #19177C">:first-note</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 4 </span>     (<span style="color: #19177C">countown-push!</span> (<span style="color: #19177C">make-countdown</span> <span style="color: #19177C">:remaining-ticks</span> <span style="color: #666666">10</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 5 </span>                                     <span style="color: #19177C">:event</span> <span style="color: #19177C">:change-note-event</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 6 </span>     (<span style="color: #19177C">play-first-note</span> <span style="color: #19177C">player</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 7 </span>    (<span style="color: #19177C">:second-note</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 8 </span>     (<span style="color: #19177C">countown-push!</span> (<span style="color: #19177C">make-countdown</span> <span style="color: #19177C">:remaining-ticks</span> <span style="color: #666666">20</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px"> 9 </span>                                     <span style="color: #19177C">:event</span> <span style="color: #19177C">:change-note-event</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">10 </span>     (<span style="color: #19177C">play-second-note</span> <span style="color: #19177C">player</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">11 </span>    (<span style="color: #19177C">:third-note</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">12 </span>     (<span style="color: #19177C">countown-push!</span> (<span style="color: #19177C">make-countdown</span> <span style="color: #19177C">:remaining-ticks</span> <span style="color: #666666">5</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">13 </span>                                     <span style="color: #19177C">:event</span> <span style="color: #19177C">:change-note-event</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">14 </span>     (<span style="color: #19177C">play-third-note</span> <span style="color: #19177C">player</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">15 </span>    (<span style="color: #880000">t</span> <span style="color: #19177C">player</span>)))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">16 </span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">17 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">piano-player-handle-event</span> (<span style="color: #19177C">player</span> <span style="color: #19177C">event</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">18 </span>  (<span style="color: #008000">case</span> <span style="color: #19177C">event</span>
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">19 </span>    (<span style="color: #19177C">:change-note-event</span> (<span style="color: #19177C">player-change-state-to-next-note</span> <span style="color: #19177C">player</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">20 </span>    (<span style="color: #880000">t</span> <span style="color: #19177C">player</span>)))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Our piano player will play the first note for 10 ticks, the second note for 20, and the third note for 5.
+The player only keeps track of what note it&#8217;s playing.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reflection">Reflection</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Remaining-ticks could be synced up with real time or some other time instead of the update cycle</p>
+</li>
+<li>
+<p>A function like <code>(countdown-cancel! event)</code> could remove countdowns with events that match <code>event</code></p>
+</li>
+<li>
+<p>Implementing commands for the timer system is trivial</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a <code>countdowns-handle-event</code> function which handles an <code>event-countdown-created</code> event</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Adding the timer expiration to the event queue means that every entity can be notified of what happened.</p>
+</li>
+<li>
+<p>Repeating timers could be implemented by adding a <code>num-repeats</code> field to the <code>countdown</code> structure</p>
+</li>
+</ul>
+</div>
+</div>
+</div>

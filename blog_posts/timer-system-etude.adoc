@@ -1,0 +1,115 @@
+:imagesdir: ./blog_posts/timer-system-etude
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+== Why would we want a timer system?
+
+image:hourglass.png[width=25%,float="right"]
+
+Timers are countdowns: counting down from a given amount of time and issuing an alarm when the time has elapsed.
+Timer systems synchronize entities.
+The logic behind timers is simple, but can easily clutter up the logic of an entities behavior and their state.
+Putting this logic in a timer system does a lot to decrease complexity of entities.
+
+=== What do I want from a timer system?
+
+.Without a timer system:
+* An entity starts keeping track of time elapsed when it wants to start a timer
+* The entity continually checks to see if elapsed time exceeds a specified time
+* When the time has elapsed, the entity changes its behavior and stops keeping track of time
+
+.With a timer system:
+* An entity adds a timer to the timer system, saying it wants to change behavior in a certain amount of time
+* The timer system sends a message to the entity, when the time has elapsed
+
+With a timer system, the entity does not keep track of elapsed time, and does not continually check for time elapsed.
+This makes adding timers trivial and fluid.
+
+== An Event-based Implementation
+
+Assuming an event queue with `(event-push! event)` defined:
+
+[source,lisp,linenums]
+----
+(defvar *countdowns*)
+(defun countdown-push! (countdown)
+  (push *countdowns* countdown))
+
+(defstruct countdown
+  remaining-ticks
+  event)
+----
+
+Entities can specify the message/event they want to have delivered with the `event` field of the `countdown` structure.
+
+Here `\*countdowns*` is a stack, treated like a FIFO.
+Timers are updated in reverse order for chronological consistency:
+
+[source,lisp,linenums]
+----
+(defun update-countdowns (countdowns)
+  ;; Save still-active countdowns into new-countdowns
+  (let ((new-countdowns ()))
+    ;; Iterate over all countdowns
+    (dolist (countdown (reverse countdowns))
+      ;; Time elapses...
+      (let ((remaining-ticks (- (countdown-remaining-ticks countdown) 1))
+            (event (countdown-event countdown)))
+        ;; has the countdown expired?
+        (if (zerop remaining-ticks)
+            ;; if the countdown expired, push the event and
+            ;; remove the countdown from the list
+            (event-push! event)
+            ;; if the countdown is still active, update the old countdown and
+            ;; keep it on the list
+            (push (make-countdown :remaining-ticks remaining-ticks
+                                  :event event)
+                  new-countdowns))))
+    (nreverse new-countdowns)))
+----
+
+Remaining ticks is decremented by 1 each update; timers are synced with the update cycle.
+When the timer expires, the event is added to the event queue and removed from the timer system.
+
+== A trivial example
+
+Suppose we have a piano-playing entity:
+
+[source,lisp,linenums]
+----
+(defun piano-player-update (player)
+  (case (piano-player-state player)
+    (:first-note
+     (countown-push! (make-countdown :remaining-ticks 10
+                                     :event :change-note-event))
+     (play-first-note player))
+    (:second-note
+     (countown-push! (make-countdown :remaining-ticks 20
+                                     :event :change-note-event))
+     (play-second-note player))
+    (:third-note
+     (countown-push! (make-countdown :remaining-ticks 5
+                                     :event :change-note-event))
+     (play-third-note player))
+    (t player)))
+
+(defun piano-player-handle-event (player event)
+  (case event
+    (:change-note-event (player-change-state-to-next-note player))
+    (t player)))
+----
+
+Our piano player will play the first note for 10 ticks, the second note for 20, and the third note for 5.
+The player only keeps track of what note it's playing.
+
+== Reflection
+
+* Remaining-ticks could be synced up with real time or some other time instead of the update cycle
+* A function like `(countdown-cancel! event)` could remove countdowns with events that match `event`
+* Implementing commands for the timer system is trivial
+** Create a `countdowns-handle-event` function which handles an `event-countdown-created` event
+* Adding the timer expiration to the event queue means that every entity can be notified of what happened.
+* Repeating timers could be implemented by adding a `num-repeats` field to the `countdown` structure
