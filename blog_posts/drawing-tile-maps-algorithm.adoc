@@ -46,24 +46,28 @@ An example call of this algorithm, draws a bush to a black screen:
 draw_tile(renderer, tile_sheet, 6, 1, 50, 100);
 ----
 
-Results in:
-
 image::tile-drawn-on-screen.png[]
 
 === How a tile map is drawn (naïve)
 
-An in game tile map is represented as a grid of tile coordinates (and other tile data).
-Given a 2d grid of <tile_x, tile_y> coordinates.
+A tile map is laid out as a 2D grid of tiles.
 
 .Naïve Algorithm
 . Determine window size and camera position
 . Clear the screen
 . Render only those tiles which are determined to be on screen
-. Render all sprites
+. Render all non-background sprites
+
+.Example from Cave Story
+image::first-cave-map-outlined.png[]
+
+* The full tile map is displayed in the image
+* The red border surrounds the tiles that are being drawn
+* The yellow border surrounds the part of the tile map being displayed on screen
 
 ==== Source of Slowdown
 
-If you have a large screen size full of tiles, say 100 tiles x 100 tiles, drawing a full tile map would result in about *10000 draw calls per frame*.
+If you have a large screen size full of tiles, say 100 tiles x 100 tiles, drawing a full tile map would result in about *10,000 draw calls per frame*.
 The problem is compounded if you are calling out to C code from another language.
 If you are using a garbage collected language, and are not careful with your allocations, the problem intensifies.
 
@@ -80,7 +84,7 @@ When the camera has scrolled far enough to add new tiles, only the new tiles wou
 If the camera moves slower than one tile per frame, the number for our large screen becomes *at most 100 draw calls per frame*.
 
 To accomplish this, we can create a texture as a render target.
-The texture should be the size of the screen plus a tile-sized "ring".
+The texture should be the size of the screen plus enough to hold an extra tile (i.e. the size of our red window in the example).
 
 .Updated Algorithm
 * The initial background tiles are drawn to the render target
@@ -88,10 +92,16 @@ The texture should be the size of the screen plus a tile-sized "ring".
 * Render the background as repeating
 ** this can take 1 to 4 draw calls
 * Whenever the camera moves, draw new tiles if they need to be drawn
+** the position of the tiles is modulated by the size of the background
+** the position of the camera relative to the background is also modulated by the size of the background
 
-This results in at least 1 draw call and at most 100 tile + 4 background draw calls per frame.
+This results in *at most 100 tile + 4 background draw calls per frame*.
 
-TODO: image of background with ring. image of repeated background
+.Demonstrating the background (green box) drawn 4 times. The yellow box shows what the game window will show.
+image::repeated-backgrounds.png[]
+
+Here, the camera has moved to the right just enough to include a new column of tiles: the column containing the second door.
+The column of tiles is drawn on the left side of the background, over the no longer visible tiles.
 
 == Reflection
 
