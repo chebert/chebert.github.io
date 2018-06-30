@@ -9,7 +9,7 @@ Serializing entities means that the entire state of an entity system can be save
 
 == How to Serialize
 
-In order to make something serializable, you need:
+In order to make something trivially serializable, you need:
 
 * plain old data
 ** Numbers, strings, characters, etc.
@@ -63,7 +63,7 @@ I would argue that `uid` is functional from a theoretical position.
 I don't really care about "what" gets returned, as long it's serializable and unique.
 `uid` always returns a unique identifier no matter how many times it is called.
 
-Or you could do it https://gist.github.com/i-am-tom/1036ccaf15d5b8f31e4d1107c1bfa4de[this way].
+Or you could do it https://gist.github.com/i-am-tom/1036ccaf15d5b8f31e4d1107c1bfa4de[this way] or https://gist.github.com/i-am-tom/1036ccaf15d5b8f31e4d1107c1bfa4de[this way].
 But that looks like the overly complicated side of functional programming.
 
 == Reflection
