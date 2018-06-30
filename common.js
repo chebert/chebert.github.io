@@ -618,12 +618,12 @@ var blog_entries = function() {
 	    e_html('./blog_posts/easy-monads-in-lisp.html')
 	),*/
 
-	/*blog_entry(
+	blog_entry(
 	    "Etude: Timer System",
-	    'TODO',
+	    '6/30/18',
 	    'A short study on creating a timer system, given an event system.',
 	    e_html('./blog_posts/timer-system-etude.html')
-	),*/
+	),
 	
 	blog_entry(
 	    "Etude: Event System",
