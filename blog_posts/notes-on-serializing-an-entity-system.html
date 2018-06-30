@@ -1,0 +1,142 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_how_to_serialize">How to Serialize</a>
+<ul class="sectlevel2">
+<li><a href="#_no_pointers">No Pointers</a></li>
+<li><a href="#_no_anonymous_functions">No anonymous functions</a></li>
+<li><a href="#_no_closures">No Closures</a></li>
+</ul>
+</li>
+<li><a href="#_is_it_functional">Is it Functional?</a></li>
+<li><a href="#_reflection">Reflection</a></li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Serializing entities means that the entire state of an entity system can be saved to a file and then restored at a later time.</p>
+</div>
+<div class="sect1">
+<h2 id="_how_to_serialize">How to Serialize</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In order to make something serializable, you need:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>plain old data</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Numbers, strings, characters, etc.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>no pointers</p>
+</li>
+<li>
+<p>no anonymous functions</p>
+</li>
+<li>
+<p>no closures</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>So that&#8217;s what I&#8217;m going to look at for an entity system.</p>
+</div>
+<div class="sect2">
+<h3 id="_no_pointers">No Pointers</h3>
+<div class="paragraph">
+<p>Entities will want to hold on to references to other entities.
+Instead of using pointers for references, we can use serializable IDs.
+Each entity will have a unique id, and the entity&#8217;s state will be stored in some dictionary.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defvar</span> <span style="color: #19177C">*entities*</span> (<span style="color: #008000">make-hash-table</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">add-entity!</span> (<span style="color: #19177C">id</span> <span style="color: #19177C">state</span>) (<span style="color: #008000">setf</span> (<span style="color: #008000">gethash</span> <span style="color: #19177C">id</span> <span style="color: #19177C">*entities*</span>) <span style="color: #19177C">state</span>))
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">3 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">entity-state</span> (<span style="color: #19177C">id</span>) (<span style="color: #008000">gethash</span> <span style="color: #19177C">id</span> <span style="color: #19177C">*entities*</span>))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Creating a unique id could be as simple as returning an auto-incremented integer.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span style="background-color: #f0f0f0; padding: 0 5px 0 5px">1 </span>(<span style="color: #008000">defvar</span> <span style="color: #19177C">*last-id*</span> <span style="color: #666666">-1</span>)
+<span style="background-color: #f0f0f0; padding: 0 5px 0 5px">2 </span>(<span style="color: #008000">defun</span> <span style="color: #19177C">uid</span> () (<span style="color: #008000">incf</span> <span style="color: #19177C">*last-id*</span>))</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_no_anonymous_functions">No anonymous functions</h3>
+<div class="paragraph">
+<p>This is easy: take an anonymous function and give it a name.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_no_closures">No Closures</h3>
+<div class="paragraph">
+<p>Closures are a little trickier.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Generally, they can be converted to a function that takes and returns all of the closure parameters in addition to the original arguments.</p>
+</li>
+<li>
+<p>But usually, closures can be replaced with functions just by holding onto data a bit longer.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Closures, anonymous functions, and pointers can still be used by the system. They just can&#8217;t be part of the entity state.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_is_it_functional">Is it Functional?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Instead of using a hash table for entities, a functional dictionary could be used.</p>
+</div>
+<div class="paragraph">
+<p>Entities should not be added to the dictionary directly by update code; perhaps an event could add new entities.</p>
+</div>
+<div class="paragraph">
+<p>I would argue that <code>uid</code> is functional from a theoretical position.
+I don&#8217;t really care about "what" gets returned, as long it&#8217;s serializable and unique.
+<code>uid</code> always returns a unique identifier no matter how many times it is called.</p>
+</div>
+<div class="paragraph">
+<p>Or you could do it <a href="https://gist.github.com/i-am-tom/1036ccaf15d5b8f31e4d1107c1bfa4de">this way</a>.
+But that looks like the overly complicated side of functional programming.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reflection">Reflection</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Events shouldn&#8217;t need to be 100% serializable, since the event queue is emptied each frame
+*</p>
+</li>
+</ul>
+</div>
+</div>
+</div>

@@ -1,0 +1,71 @@
+:imagesdir: ./blog_posts/
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+Serializing entities means that the entire state of an entity system can be saved to a file and then restored at a later time.
+
+== How to Serialize
+
+In order to make something serializable, you need:
+
+* plain old data
+** Numbers, strings, characters, etc.
+* no pointers
+* no anonymous functions
+* no closures
+
+So that's what I'm going to look at for an entity system.
+
+=== No Pointers
+
+Entities will want to hold on to references to other entities.
+Instead of using pointers for references, we can use serializable IDs.
+Each entity will have a unique id, and the entity's state will be stored in some dictionary.
+
+[source,lisp,linenum]
+----
+(defvar *entities* (make-hash-table))
+(defun add-entity! (id state) (setf (gethash id *entities*) state))
+(defun entity-state (id) (gethash id *entities*))
+----
+
+Creating a unique id could be as simple as returning an auto-incremented integer.
+
+[source,lisp,linenum]
+----
+(defvar *last-id* -1)
+(defun uid () (incf *last-id*))
+----
+
+=== No anonymous functions
+
+This is easy: take an anonymous function and give it a name.
+
+=== No Closures
+
+Closures are a little trickier.
+
+* Generally, they can be converted to a function that takes and returns all of the closure parameters in addition to the original arguments.
+* But usually, closures can be replaced with functions just by holding onto data a bit longer.
+
+NOTE: Closures, anonymous functions, and pointers can still be used by the system. They just can't be part of the entity state.
+
+== Is it Functional?
+
+Instead of using a hash table for entities, a functional dictionary could be used.
+
+Entities should not be added to the dictionary directly by update code; perhaps an event could add new entities.
+
+I would argue that `uid` is functional from a theoretical position.
+I don't really care about "what" gets returned, as long it's serializable and unique.
+`uid` always returns a unique identifier no matter how many times it is called.
+
+Or you could do it https://gist.github.com/i-am-tom/1036ccaf15d5b8f31e4d1107c1bfa4de[this way].
+But that looks like the overly complicated side of functional programming.
+
+== Reflection
+
+* Events shouldn't need to be 100% serializable, since the event queue is emptied each frame

@@ -589,6 +589,13 @@ var e_portfolio_post_page = function() {
 
 var blog_entries = function() {
     return [
+	blog_entry(
+	    "Notes: Serializable Entity System",
+	    'TODO',
+	    'Presents an idea for implementing an entity system that is functional and easy to serialize.',
+	    e_html('./blog_posts/notes-on-serializing-an-entity-system.html')
+	),
+
 	/*blog_entry(
 	    "Algorithm: Drawing Scrolling Tile Maps",
 	    'TODO',

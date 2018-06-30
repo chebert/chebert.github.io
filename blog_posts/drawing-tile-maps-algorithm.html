@@ -169,9 +169,16 @@ The texture should be the size of the screen plus enough to hold an extra tile (
 </li>
 <li>
 <p>Whenever the camera moves, draw new tiles if they need to be drawn</p>
+<div class="ulist">
+<ul>
+<li>
+<p>the position of the tiles is modulated by the size of the background</p>
 </li>
 <li>
-<p>the position of the camera relative to the background is modulated by the size of the background</p>
+<p>the position of the camera relative to the background is also modulated by the size of the background</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -185,7 +192,8 @@ The texture should be the size of the screen plus enough to hold an extra tile (
 <div class="title">Figure 3. Demonstrating the background (green box) drawn 4 times. The yellow box shows what the game window will show.</div>
 </div>
 <div class="paragraph">
-<p>Here, the camera has moved just enough to include a new column of tiles: the column containing the second door.</p>
+<p>Here, the camera has moved to the right just enough to include a new column of tiles: the column containing the second door.
+The column of tiles is drawn on the left side of the background, over the no longer visible tiles.</p>
 </div>
 </div>
 </div>
