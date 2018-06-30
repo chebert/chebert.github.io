@@ -1,0 +1,201 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_tetris">Tetris</a></li>
+<li><a href="#_freecell">Freecell</a></li>
+<li><a href="#_pacman">Pacman</a></li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+I was experimenting with minimizing the number of function calls, so a lot of the code for these projects is "inline".
+This resulted in a high level of nesting, and I wouldn&#8217;t ordinarily do it this way.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Each game is a single C-file which only depends on the NCURSES library.
+They can be compiled and run on POSIX systems:</p>
+</div>
+<div class="listingblock">
+<div class="title">Example of compiling and running tetris</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="bash">gcc tetris.c -o tetris -lncurses
+./tetris</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tetris">Tetris</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is a faithful recreation of the NES version of the game Tetris.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/terminal-games/tetris.png" alt="tetris">
+</div>
+<div class="title">Figure 1. Level 0 of Tetris</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/terminal-games/tetris.gif" alt="tetris">
+</div>
+<div class="title">Figure 2. Getting a Tetris causes the screen to flash</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/terminal-games/tetris-colors.png" alt="tetris colors">
+</div>
+<div class="title">Figure 3. Level 1 of Tetris: colors change and speed increases</div>
+</div>
+<div class="paragraph">
+<p>The <code>z</code> and <code>x</code> keys rotate the tetronimoes.
+The left and right arrow keys move left and right.
+Down causes a "soft" drop, and pressing down again stops the "soft" drop.
+"Soft" dropping increases the score.</p>
+</div>
+<div class="paragraph">
+<p>Code for Tetris can be found <a href="https://gist.github.com/chebert/0443fa343804fe5cc203d35ddcbd1155">here</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_freecell">Freecell</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This is a version of Freecell that is optimized for impatient people.
+It probably takes the fun out of playing this game.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/terminal-games/freecell-open.png" alt="freecell open">
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>the next cards to go to the upper right are highlighted</p>
+</li>
+<li>
+<p>the number of cards you can pick up is displayed in the cursor triangle</p>
+<div class="ulist">
+<ul>
+<li>
+<p>empty slots display the number of extra cards you can pick up: +1 for freecells and x2 for the table cells</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>the number of "tableau" moves available is displayed</p>
+</li>
+<li>
+<p>the cursor only moves to valid positions</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/terminal-games/freecell.gif" alt="freecell">
+</div>
+</div>
+<div class="paragraph">
+<p>Pressing <code>Enter</code> reveals more information:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>keyboard controls</p>
+</li>
+<li>
+<p>number of moves</p>
+</li>
+<li>
+<p>time spent</p>
+</li>
+<li>
+<p>number of restarts</p>
+</li>
+<li>
+<p>number of undos</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>It might miss the point of Freecell, but it makes it a lot more fun for me.</p>
+</div>
+<div class="paragraph">
+<p>The code for freecell can be found <a href="https://gist.github.com/chebert/b1dfc09e5bbac0030f96bd689a8ba724">here</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_pacman">Pacman</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Pacman is a faithful recreation of the classic arcade game, leaning heavily on <a href="https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.php?print=1">the Pacman Dossier</a>.
+I have even implemented pixel-level collision detection, resulting in a bug where you can go through ghosts without dying.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/terminal-games/pacman.png" alt="pacman">
+</div>
+</div>
+<div class="paragraph">
+<p>Each Ghost has their own unique behavior, characterized by their chase targets:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>red chases Pacman directly</p>
+</li>
+<li>
+<p>pink chases the square a few tiles in front of Pacman</p>
+</li>
+<li>
+<p>orange chases Pacman, but then runs away when he gets close.</p>
+</li>
+<li>
+<p>blue chases a tile based on pink&#8217;s location and Pacman&#8217;s orientation</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>There are many other minutiae, such as:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>ghosts won&#8217;t go up through certain corridors, unless they are scared (Pacman has eaten a powerup)</p>
+</li>
+<li>
+<p>ghosts have a chase mode and a run to corner mode</p>
+</li>
+<li>
+<p>ghosts change speed when going through the off-screen corridor</p>
+</li>
+<li>
+<p>many parameters change during level up</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="./portfolio_posts/terminal-games/pacman.gif" alt="pacman">
+</div>
+<div class="title">Figure 4. What it looks like to win a level</div>
+</div>
+<div class="paragraph">
+<p>I also implemented 2 player mode.</p>
+</div>
+<div class="paragraph">
+<p>Code for this version of Pacman can be found <a href="https://gist.github.com/chebert/f71a8694f2815061d705f610329e2a5b">here</a>.</p>
+</div>
+</div>
+</div>

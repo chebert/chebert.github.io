@@ -1,0 +1,94 @@
+:imagesdir: ./portfolio_posts/terminal-games
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+NOTE: I was experimenting with minimizing the number of function calls, so a lot of the code for these projects is "inline".
+This resulted in a high level of nesting, and I wouldn't ordinarily do it this way.
+
+Each game is a single C-file which only depends on the NCURSES library.
+They can be compiled and run on POSIX systems:
+
+.Example of compiling and running tetris
+[source,bash]
+----
+gcc tetris.c -o tetris -lncurses
+./tetris
+----
+
+== Tetris
+
+This is a faithful recreation of the NES version of the game Tetris.
+
+.Level 0 of Tetris
+image::tetris.png[]
+
+.Getting a Tetris causes the screen to flash
+image::tetris.gif[]
+
+.Level 1 of Tetris: colors change and speed increases
+image::tetris-colors.png[]
+
+The `z` and `x` keys rotate the tetronimoes. 
+The left and right arrow keys move left and right.
+Down causes a "soft" drop, and pressing down again stops the "soft" drop.
+"Soft" dropping increases the score.
+
+Code for Tetris can be found https://gist.github.com/chebert/0443fa343804fe5cc203d35ddcbd1155[here]
+
+== Freecell
+
+This is a version of Freecell that is optimized for impatient people.
+It probably takes the fun out of playing this game.
+
+image::freecell-open.png[]
+
+* the next cards to go to the upper right are highlighted
+* the number of cards you can pick up is displayed in the cursor triangle
+** empty slots display the number of extra cards you can pick up: +1 for freecells and x2 for the table cells
+* the number of "tableau" moves available is displayed
+* the cursor only moves to valid positions
+
+image::freecell.gif[]
+
+Pressing `Enter` reveals more information:
+
+* keyboard controls
+* number of moves
+* time spent
+* number of restarts
+* number of undos
+
+It might miss the point of Freecell, but it makes it a lot more fun for me.
+
+The code for freecell can be found https://gist.github.com/chebert/b1dfc09e5bbac0030f96bd689a8ba724[here].
+
+== Pacman
+
+Pacman is a faithful recreation of the classic arcade game, leaning heavily on https://www.gamasutra.com/view/feature/3938/the_pacman_dossier.php?print=1[the Pacman Dossier].
+I have even implemented pixel-level collision detection, resulting in a bug where you can go through ghosts without dying.
+
+image::pacman.png[]
+
+Each Ghost has their own unique behavior, characterized by their chase targets:
+
+* red chases Pacman directly
+* pink chases the square a few tiles in front of Pacman
+* orange chases Pacman, but then runs away when he gets close.
+* blue chases a tile based on pink's location and Pacman's orientation
+
+There are many other minutiae, such as:
+
+* ghosts won't go up through certain corridors, unless they are scared (Pacman has eaten a powerup)
+* ghosts have a chase mode and a run to corner mode
+* ghosts change speed when going through the off-screen corridor
+* many parameters change during level up
+
+.What it looks like to win a level
+image::pacman.gif[]
+
+I also implemented 2 player mode.
+
+Code for this version of Pacman can be found https://gist.github.com/chebert/f71a8694f2815061d705f610329e2a5b[here].

@@ -659,6 +659,11 @@ var portfolio_entries = function() {
 			'6/22/18',
 			'An iOS/Google Play app that teaches the fundamentals of musical theory and the Circle of Fifths, written in React Native.',
 			e_html("./portfolio_posts/perfect-fifth.html")),
+	portfolio_entry('ASCII Terminal Games',
+			'6/30/18',
+			'A few, finished games built for the terminal emulator in Linux/Mac. Uses C and NCURSES library.',
+			e_html("./portfolio_posts/terminal-games.html")),
+
     ];
 };
 
