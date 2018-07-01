@@ -618,11 +618,18 @@ var blog_entries = function() {
 	    e_html('./blog_posts/easy-monads-in-lisp.html')
 	),*/
 
-	blog_entry(
+	/*blog_entry(
 	    "Web Framework: Part 2",
 	    'TODO',
 	    'I discuss problems which other web frameworks aim to solve.',
 	    e_html('./blog_posts/simple-websites-part2.html')
+	),*/
+
+	blog_entry(
+	    "Etude: Propagating Values",
+	    'TODO',
+	    'A short study on propagating value changes to views and dependent values.',
+	    e_html('./blog_posts/propagating-values-etude.html')
 	),
 
 	blog_entry(

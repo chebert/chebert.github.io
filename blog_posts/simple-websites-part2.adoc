@@ -5,3 +5,60 @@
 :pygments-linenums-mode: inline
 :toc:
 
+== What is a web framework supposed to do?
+
+.AngularJS: makes HTML pages dynamic
+* display dynamic lists
+* one way data-binding: read only lists
+* two-way data-binding: editable fields
+* routing for navigating among different views and their components
+* declarative; data-driven
+* works with plain HTML
+
+.ReactJS: makes creating interactive components easy
+* JSX allows creating HTML with JavaScript embedded
+* one-way data-binding: sending props to children
+* reacting to input: register event handler and call this.setState()
+* automatically re-render when changes occur
+
+.So, a web framework should:
+* render HTML from variables/functions/database
+* render different views of the same information without duplicating
+* not directly mutate any data
+* work with plain HTML
+* re-render HTML when dependent information changes (binding)
+
+== Solving the problems
+
+=== Render HTML from Variables
+
+This is _easy_.
+As I showed in link:blog_post.html?title=A%20Superior%20Web%20Framework%20for%20Those%20Who%20Don%27t%20Much%20Care%20for%20Web%20Development[part 1], all you need are a couple of functions to make this work.
+
+=== Render different views of the same information without duplicating
+
+Again, this is _easy_.
+Given some data, all you need to do is come up with functions which parse this data and render HTML elements.
+
+=== Not Directly Mutate any Data
+
+I don't see any reason why you _need_ to.
+
+=== Work with HTML
+
+HTML can be loaded in using an XMLHTTPRequest.
+Using templates is trickier.
+
+=== Two-way binding Model and UI
+
+This is the meatiest problem that web frameworks solve.
+But still not that complicated.
+
+* set up an event handler for when the data changes
+** when the data changes, update all views that reference this data
+
+You can either:
+
+* manually keep track of which views reference this data
+** easy, but not easily scaleable
+* automatically keep track of what model data views are dependent on

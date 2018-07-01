@@ -1,0 +1,153 @@
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_what_is_a_web_framework_supposed_to_do">What is a web framework supposed to do?</a></li>
+<li><a href="#_solving_the_problems">Solving the problems</a>
+<ul class="sectlevel2">
+<li><a href="#_render_html_from_variables">Render HTML from Variables</a></li>
+<li><a href="#_render_different_views_of_the_same_information_without_duplicating">Render different views of the same information without duplicating</a></li>
+<li><a href="#_not_directly_mutate_any_data">Not Directly Mutate any Data</a></li>
+<li><a href="#_work_with_html">Work with HTML</a></li>
+<li><a href="#_double_binding_information">Double-binding Information</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="sect1">
+<h2 id="_what_is_a_web_framework_supposed_to_do">What is a web framework supposed to do?</h2>
+<div class="sectionbody">
+<div class="ulist">
+<div class="title">AngularJS: makes HTML pages dynamic</div>
+<ul>
+<li>
+<p>display dynamic lists</p>
+</li>
+<li>
+<p>one way data-binding: read only lists</p>
+</li>
+<li>
+<p>two-way data-binding: editable fields</p>
+</li>
+<li>
+<p>routing for navigating among different views and their components</p>
+</li>
+<li>
+<p>declarative; data-driven</p>
+</li>
+<li>
+<p>works with plain HTML</p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<div class="title">ReactJS: makes creating interactive components easy</div>
+<ul>
+<li>
+<p>JSX allows creating HTML with JavaScript embedded</p>
+</li>
+<li>
+<p>one-way data-binding: sending props to children</p>
+</li>
+<li>
+<p>reacting to input: register event handler and call this.setState()</p>
+</li>
+<li>
+<p>automatically re-render when changes occur</p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<div class="title">So, a web framework should:</div>
+<ul>
+<li>
+<p>render HTML from variables/functions/database</p>
+</li>
+<li>
+<p>render different views of the same information without duplicating</p>
+</li>
+<li>
+<p>not directly mutate any data</p>
+</li>
+<li>
+<p>work with plain HTML</p>
+</li>
+<li>
+<p>re-render HTML when dependent information changes (binding)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_solving_the_problems">Solving the problems</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_render_html_from_variables">Render HTML from Variables</h3>
+<div class="paragraph">
+<p>This is <em>easy</em>.
+As I showed in <a href="blog_post.html?title=A%20Superior%20Web%20Framework%20for%20Those%20Who%20Don%27t%20Much%20Care%20for%20Web%20Development">part 1</a>, all you need are a couple of functions to make this work.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_render_different_views_of_the_same_information_without_duplicating">Render different views of the same information without duplicating</h3>
+<div class="paragraph">
+<p>Again, this is <em>easy</em>.
+Given some data, all you need to do is come up with functions which parse this data and render HTML elements.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_not_directly_mutate_any_data">Not Directly Mutate any Data</h3>
+<div class="paragraph">
+<p>I don&#8217;t see any reason why you <em>need</em> to.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_work_with_html">Work with HTML</h3>
+<div class="paragraph">
+<p>HTML can be loaded in using an XMLHTTPRequest.
+Using templates is trickier.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_double_binding_information">Double-binding Information</h3>
+<div class="paragraph">
+<p>This is the meatiest problem that web frameworks solve.
+But still not that complicated.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>set up an event handler for when the data changes</p>
+<div class="ulist">
+<ul>
+<li>
+<p>when the data changes, update all views that reference this data</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can either:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>manually keep track of which views reference this data</p>
+<div class="ulist">
+<ul>
+<li>
+<p>easy, but not easily scaleable</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>automatically keep track of what model data views are dependent on</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
