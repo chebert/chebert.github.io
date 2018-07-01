@@ -1,0 +1,7 @@
+:imagesdir: ./blog_posts/simple-websites-part2
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+

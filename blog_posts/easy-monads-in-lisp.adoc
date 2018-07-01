@@ -14,7 +14,7 @@ I appreciate the benefits of functional programming, primarily:
 * non-destructive operations.
 
 One of the most challenging parts of functional programming is modeling effects.
-The other challenging part is interacting with IO (reading random variables and such).
+Another challenging part is interacting with IO (reading random variables and such).
 
 == What are Monads?
 

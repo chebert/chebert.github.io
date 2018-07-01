@@ -619,6 +619,13 @@ var blog_entries = function() {
 	),*/
 
 	blog_entry(
+	    "Web Framework: Part 2",
+	    'TODO',
+	    'I discuss problems which other web frameworks aim to solve.',
+	    e_html('./blog_posts/simple-websites-part2.html')
+	),
+
+	blog_entry(
 	    "Etude: Timer System",
 	    '6/30/18',
 	    'A short study on creating a timer system, given an event system.',
