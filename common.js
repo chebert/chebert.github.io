@@ -615,7 +615,7 @@ var blog_entries = function() {
 	    '6/30/18',
 	    'Presents an algorithm for drawing static or mostly static tile maps that scroll in the background. Based on how the GameBoy\'s tile map works.',
 	    e_html('./blog_posts/drawing-tile-maps-algorithm.html')
-	),*/
+	),
 	
 	blog_entry(
 	    "Etude: A scripted sequence system.",
