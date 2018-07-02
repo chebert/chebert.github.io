@@ -437,7 +437,7 @@ var e_card_list = function(cards) {
 
 // navLink: [title, link]
 var navbar_nav_links = function() {
-    return [['Blog', 'index.html'],
+    return [['Journal', 'index.html'],
 	    ['Portfolio', 'portfolio.html'],
 	    ['Youtube', 'https://www.youtube.com/channel/UCLNTFHb8gz7ag7XnnV3o05Q?view_as=subscriber'],
 	    ['Github', 'https://github.com/chebert'],
@@ -500,9 +500,9 @@ var e_portfolio_card = function(portfolioEntry) {
 // Listing of blog posts.
 var e_home_page = function() {
     var blogEntries = blog_entries();
-    var navbar = e_navbar('Blog');
+    var navbar = e_navbar('Journal');
     var explanation = e_div(
-	['Christopher Hebert\'s Blog. I discuss things like game programming, code architecture ideas, practicing, and other miscellany.']);
+	['Christopher Hebert\'s public journal. I write about things like game programming, code architecture ideas, practicing, and other miscellany. Posts will be formatted like a blog, but they will be updated periodically. Some are marked as "INCOMPLETE", and are more just seeds of ideas that still need to be fleshed out.']);
     var cards = e_card_list(blogEntries.map(e_blog_card));
 
     return e_page_div([navbar, explanation, cards]);
@@ -589,47 +589,46 @@ var e_portfolio_post_page = function() {
 
 var blog_entries = function() {
     return [
-	/*
+	blog_entry(
+	    "Web Framework: Part 2",
+	    'INCOMPLETE',
+	    'I discuss problems which other web frameworks aim to solve.',
+	    e_html('./blog_posts/simple-websites-part2.html')
+	),
+
+	blog_entry(
+	    "Etude: Propagating Values",
+	    'INCOMPLETE',
+	    'A short study on propagating value changes to views and dependent values.',
+	    e_html('./blog_posts/propagating-values-etude.html')
+	),
+
 	blog_entry(
 	    "Notes: Serializable Entity System",
-	    'TODO',
+	    '6/30/18',
 	    'Presents an idea for implementing an entity system that is functional and easy to serialize.',
 	    e_html('./blog_posts/notes-on-serializing-an-entity-system.html')
-	),*/
+	),
 
-	/*blog_entry(
+	blog_entry(
 	    "Algorithm: Drawing Scrolling Tile Maps",
-	    'TODO',
+	    '6/30/18',
 	    'Presents an algorithm for drawing static or mostly static tile maps that scroll in the background. Based on how the GameBoy\'s tile map works.',
 	    e_html('./blog_posts/drawing-tile-maps-algorithm.html')
 	),*/
 	
-	/*blog_entry(
+	blog_entry(
 	    "Etude: A scripted sequence system.",
-	    'TODO',
+	    '6/30/18',
 	    'A short study on creating a scripted sequence system -- built on an event system and state machines..',
 	    e_html('./blog_posts/scripted-sequences-etude.html')
-	),*/
+	),
 	
-	/*blog_entry(
+	blog_entry(
 	    "Idea: Easy Functional Programming Using Dynamic Variables",
-	    'TODO',
+	    '6/30/18',
 	    'Presents an idea of how to effortlessly incorporate monadic behavior in languages with dynamic variables.',
 	    e_html('./blog_posts/easy-monads-in-lisp.html')
-	),*/
-
-	/*blog_entry(
-	    "Web Framework: Part 2",
-	    'TODO',
-	    'I discuss problems which other web frameworks aim to solve.',
-	    e_html('./blog_posts/simple-websites-part2.html')
-	),*/
-
-	blog_entry(
-	    "Etude: Propagating Values",
-	    'TODO',
-	    'A short study on propagating value changes to views and dependent values.',
-	    e_html('./blog_posts/propagating-values-etude.html')
 	),
 
 	blog_entry(
