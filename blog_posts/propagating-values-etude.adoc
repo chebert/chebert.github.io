@@ -1,0 +1,21 @@
+:imagesdir: ./blog_posts/propagating-values
+:source-highlighter: pygments
+:pygments-style: default
+:pygments-css: style
+:pygments-linenums-mode: inline
+:toc:
+
+Short study on using an event system to propagate value changes through a system.
+
+* spreadsheet style computations
+* binding UI elements to changing values
+
+Generally, things that should only be recomputed when a value it depends on changes.
+
+== How it works
+
+Suppose you have an event system:
+
+. give interesting values unique identifiers
+. whenever an interesting value changes, create an event specifying the id and new value
+. dependent values can then handle this event
